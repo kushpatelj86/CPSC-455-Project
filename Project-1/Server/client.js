@@ -1,126 +1,89 @@
 import WebSocket from 'ws';
 import promptSync from 'prompt-sync'
 import fs from 'fs'
+import readline from 'readline';
 
 const prompt = promptSync();
 const userName = prompt("Enter Username: ");
 const password = prompt.hide('Enter a password: ');
 
-function JSONData() {
-    const file = 'users.json'
-    var data = fs.readFileSync(file);
-    const json_data = JSON.parse(data);
+// Check if the file exists, if not creates an empty array
+const usersFile = 'users.json';
+if (!fs.existsSync(usersFile)) {
+    fs.writeFileSync(usersFile, JSON.stringify([]));
+}
 
+function JSONData() {
+    const data = fs.readFileSync(usersFile);
+    const json_data = JSON.parse(data);
     return json_data;
 }
 
-
-
-
-
-
-
-function UserExist()
-{
-    const currentObject = JSONData();
-
-    let exits = false;
-
-    for (const key in currentObject) {
-
-        if(currentObject[key].username === userName)
-        {
-            exits = true;
-            break;
-        }
-  
-    }
-
-
-
-
-    return exits;
-
-
+function UserExist() {
+    const currentUsers = JSONData();
+    return currentUsers.some(user => user.username === userName);
 }
 
-
-
-
-function checkValidPassword()
-{
+function checkValidPassword(){
     const currentObject = JSONData();
-    let isValid = false;
-
-    for (const key in currentObject) {
-        console.log(currentObject[key].password === password)
-        console.log(currentObject[key].username === userName)
-
-        if(currentObject[key].password === password && currentObject[key].username === userName)
-        {
-            isValid = true;
-            break;
-        }
-  
-    }
-    return isValid;
+    return currentObject.some(user => user.username === userName && user.password === password);
 }
 
-
-
-if((UserExist() === false))
-{
+if(!UserExist()) {
     var currentObject = JSONData();
-    let newData = {
+    const newUser = {
         
         "username" : userName,
         "password" : password
         
-    }
-    currentObject.push(newData);
-
-    var updatedData = JSON.stringify(currentObject);
-    fs.writeFile('users.json', updatedData, err => {
-    if(err) 
-        {
-            throw err;
-        }
-    });   
-
-
-    console.log("User created")
+    };
+    currentObject.push(newUser);
+    fs.writeFileSync(usersFile, JSON.stringify (currentObject, null, 2));
+    console.log("User created");
 }
 
-
-else
-{
-
-    const serverAddress = "ws://localhost:8000";
-
-    const cliSocket = new WebSocket(serverAddress);
-
-    if((checkValidPassword() === false))
-    {
-        console.log("Invalid password");
-    }
-
-    else
-    {
-        cliSocket.on('error', console.error);
-
-
-        cliSocket.on('open', function(){
-        console.log("send something")
-        const message = prompt("Please enter your message: ");
-        cliSocket.send(message);
-        });
-
-        cliSocket.on('message', 
-            function recieve_message(data){
-                console.log('received: %s', data);
-            });
-
-
-    }
+if (!UserExist() || !checkValidPassword()) {
+    console.log("Invalid password");
+    process.exit(1);
 }
+
+const serverAddress = "ws://localhost:8000";
+const cliSocket = new WebSocket(serverAddress);
+// Create a readline interface to read from the console
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: 'Your message: '
+});
+
+cliSocket.on('error', console.error);
+
+cliSocket.on('open', () => {
+    console.log("Connected to server. Type your message and press enter (or type 'exit' to quit):");
+    rl.prompt();
+});
+// When the client receives a message from the server, it will print it to the console
+cliSocket.on('message', (data) => {
+    try {
+        const received = JSON.parse(data);
+        console.log(`\nReceived from ${received.username}: ${received.message}`);
+    } catch (e) {
+        console.error(`\nReceived: ${data.toString()}`);
+    }
+    rl.prompt();
+});
+//JSON stringifies the message and sends it to the server includes the username.
+rl.on('line', (line) => {
+    if (line.trim().toLowerCase() === 'exit') {
+        cliSocket.close();
+        rl.close();
+        process.exit(0);
+    }
+    const msg = {
+        username: userName,
+        message: line
+    };
+    cliSocket.send(JSON.stringify(msg));
+    rl.prompt();
+});
 
