@@ -1,11 +1,16 @@
+//client.js
 import WebSocket from 'ws';
 import promptSync from 'prompt-sync'
 import fs from 'fs'
 import readline from 'readline';
+import bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 
 const prompt = promptSync();
 const userName = prompt("Enter Username: ");
 const password = prompt.hide('Enter a password: ');
+
+
 
 // Check if the file exists, if not creates an empty array
 const usersFile = 'users.json';
@@ -24,25 +29,97 @@ function UserExist() {
     return currentUsers.some(user => user.username === userName);
 }
 
-function checkValidPassword(){
+
+
+async function comparePassword(plainPassword, hashedPassword) {
+    try {
+        const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
+        return isMatch;  
+    } catch (err) {
+        console.error('Error comparing password:', err);
+    }
+}
+
+
+
+
+
+
+ async function checkValidPassword(){
     const currentObject = JSONData();
-    return currentObject.some(user => user.username === userName && user.password === password);
+
+
+
+    let isValid = false;
+    for (const key in currentObject) {
+        
+        
+       
+        console.log(currentObject[key].password === password)
+        console.log(currentObject[key].username === userName)
+        console.log(currentObject[key].password) 
+        console.log(password) 
+        const ismatch = await comparePassword(password, currentObject[key].password);
+
+        console.log(ismatch) 
+        console.log("checking")
+        console.log("checking if true or false ", currentObject[key].username === userName && ismatch)
+        if(currentObject[key].username === userName && ismatch)
+        {
+            isValid = true;
+            break;
+        }
+  
+    }
+    console.log("is valid ", isValid)
+    return isValid;
+
+
+    /*const object =  currentObject.some(async user => {
+        const ismatch = await bcrypt.compare(password,user.password );
+        console.log(user.password) 
+        console.log(password) 
+        console.log(ismatch) 
+        console.log("checking")
+        console.log(user.username === userName && ismatch)
+        
+        const valid = user.username === userName && ismatch;
+        return valid
+    });
+    console.log("ptiny oject");
+    console.log(object);
+
+    return true;*/
 }
 
 if(!UserExist()) {
     var currentObject = JSONData();
+
+    const salt =   bcrypt.genSaltSync(randomInt((password.length)));
+    const hash =  await bcrypt.hash(password, salt);
+    
+    
     const newUser = {
         
         "username" : userName,
-        "password" : password
+        "password" : hash
         
     };
     currentObject.push(newUser);
     fs.writeFileSync(usersFile, JSON.stringify (currentObject, null, 2));
     console.log("User created");
 }
+console.log("debugging");
+const promise = await checkValidPassword();
 
-if (!UserExist() || !checkValidPassword()) {
+
+
+
+
+console.log("checkign password ", promise)
+console.log(UserExist() === false)
+
+if (UserExist() === false || promise === false) {
     console.log("Invalid password");
     process.exit(1);
 }
@@ -86,4 +163,3 @@ rl.on('line', (line) => {
     cliSocket.send(JSON.stringify(msg));
     rl.prompt();
 });
-
