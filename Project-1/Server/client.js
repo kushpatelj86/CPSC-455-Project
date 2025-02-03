@@ -10,8 +10,6 @@ const prompt = promptSync();
 const userName = prompt("Enter Username: ");
 const password = prompt.hide('Enter a password: ');
 
-
-
 // Check if the file exists, if not creates an empty array
 const usersFile = 'users.json';
 if (!fs.existsSync(usersFile)) {
@@ -29,8 +27,6 @@ function UserExist() {
     return currentUsers.some(user => user.username === userName);
 }
 
-
-
 async function comparePassword(plainPassword, hashedPassword) {
     try {
         const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
@@ -40,21 +36,11 @@ async function comparePassword(plainPassword, hashedPassword) {
     }
 }
 
-
-
-
-
-
  async function checkValidPassword(){
     const currentObject = JSONData();
-
-
-
     let isValid = false;
     for (const key in currentObject) {
         
-        
-       
         console.log(currentObject[key].password === password)
         console.log(currentObject[key].username === userName)
         console.log(currentObject[key].password) 
@@ -98,7 +84,6 @@ if(!UserExist()) {
     const salt =   bcrypt.genSaltSync(randomInt((password.length)));
     const hash =  await bcrypt.hash(password, salt);
     
-    
     const newUser = {
         
         "username" : userName,
@@ -111,11 +96,6 @@ if(!UserExist()) {
 }
 console.log("debugging");
 const promise = await checkValidPassword();
-
-
-
-
-
 console.log("checkign password ", promise)
 console.log(UserExist() === false)
 
@@ -126,6 +106,7 @@ if (UserExist() === false || promise === false) {
 
 const serverAddress = "ws://localhost:8000";
 const cliSocket = new WebSocket(serverAddress);
+
 // Create a readline interface to read from the console
 const rl = readline.createInterface({
     input: process.stdin,
@@ -136,19 +117,36 @@ const rl = readline.createInterface({
 cliSocket.on('error', console.error);
 
 cliSocket.on('open', () => {
-    console.log("Connected to server. Type your message and press enter (or type 'exit' to quit):");
+    console.log("Connected to server");
+    
+    const joinMsg = {type: "join", username: userName};
+    cliSocket.send(JSON.stringify(joinMsg));
+
+    console.log("Type your message and press enter (or type 'exit' to quit):");
     rl.prompt();
 });
+
 // When the client receives a message from the server, it will print it to the console
 cliSocket.on('message', (data) => {
     try {
-        const received = JSON.parse(data);
-        console.log(`\nReceived from ${received.username}: ${received.message}`);
+        const received = JSON.parse(data.toString());
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        if (received.type === "notification" || received.type === "userList") {
+          console.log(received.message);
+        } else if (received.error) {
+          console.log(`Error: ${received.error}`);
+        } else {
+          console.log(`Received from ${received.username}: ${received.message}`);
+        }
     } catch (e) {
-        console.error(`\nReceived: ${data.toString()}`);
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        console.error(`Received: ${data.toString()}`);
     }
     rl.prompt();
 });
+
 //JSON stringifies the message and sends it to the server includes the username.
 rl.on('line', (line) => {
     if (line.trim().toLowerCase() === 'exit') {
@@ -156,10 +154,14 @@ rl.on('line', (line) => {
         rl.close();
         process.exit(0);
     }
-    const msg = {
-        username: userName,
-        message: line
-    };
+    const msg = {username: userName,message: line};
     cliSocket.send(JSON.stringify(msg));
     rl.prompt();
+});
+
+cliSocket.on('close', () => {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    console.log("Connection to server closed.");
+    process.exit(0);
 });
