@@ -1,4 +1,3 @@
-//client.js
 import WebSocket from 'ws';
 import promptSync from 'prompt-sync'
 import fs from 'fs'
@@ -40,7 +39,7 @@ async function comparePassword(plainPassword, hashedPassword) {
     const currentObject = JSONData();
     let isValid = false;
     for (const key in currentObject) {
-        
+
         console.log(currentObject[key].password === password)
         console.log(currentObject[key].username === userName)
         console.log(currentObject[key].password) 
@@ -55,7 +54,7 @@ async function comparePassword(plainPassword, hashedPassword) {
             isValid = true;
             break;
         }
-  
+
     }
     console.log("is valid ", isValid)
     return isValid;
@@ -74,7 +73,6 @@ async function comparePassword(plainPassword, hashedPassword) {
     });
     console.log("ptiny oject");
     console.log(object);
-
     return true;*/
 }
 
@@ -83,12 +81,12 @@ if(!UserExist()) {
 
     const salt =   bcrypt.genSaltSync(randomInt((password.length)));
     const hash =  await bcrypt.hash(password, salt);
-    
+
     const newUser = {
-        
+
         "username" : userName,
         "password" : hash
-        
+
     };
     currentObject.push(newUser);
     fs.writeFileSync(usersFile, JSON.stringify (currentObject, null, 2));
@@ -104,9 +102,8 @@ if (UserExist() === false || promise === false) {
     process.exit(1);
 }
 
-const serverAddress = "wss://localhost:8000";
+const serverAddress = "ws://localhost:8000";
 const cliSocket = new WebSocket(serverAddress);
-
 // Create a readline interface to read from the console
 const rl = readline.createInterface({
     input: process.stdin,
@@ -121,11 +118,9 @@ cliSocket.on('open', () => {
     
     const joinMsg = {type: "join", username: userName};
     cliSocket.send(JSON.stringify(joinMsg));
-
     console.log("Type your message and press enter (or type 'exit' to quit):");
     rl.prompt();
 });
-
 // When the client receives a message from the server, it will print it to the console
 cliSocket.on('message', (data) => {
     try {
@@ -146,7 +141,6 @@ cliSocket.on('message', (data) => {
     }
     rl.prompt();
 });
-
 //JSON stringifies the message and sends it to the server includes the username.
 rl.on('line', (line) => {
     if (line.trim().toLowerCase() === 'exit') {
@@ -158,7 +152,6 @@ rl.on('line', (line) => {
     cliSocket.send(JSON.stringify(msg));
     rl.prompt();
 });
-
 cliSocket.on('close', () => {
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
