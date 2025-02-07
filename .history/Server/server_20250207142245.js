@@ -100,7 +100,7 @@ serverSock.on('connection', (client) => {
         console.log(`${client.username} disconnected from chat.`);
         serverSock.clients.forEach((otherClient) => {
             if(otherClient !== client && otherClient.readyState === client.OPEN) {
-                otherClient.send(disconnectMsg);
+                otherClient.send(disconnectNotification);
             }
         });
     })
