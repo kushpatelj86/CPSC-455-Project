@@ -8,7 +8,7 @@ import { randomInt } from 'crypto';
 const prompt = promptSync();
 const userName = prompt("Enter Username: ");
 const password = prompt.hide('Enter a password: ');
-
+//is a a client file
 // Check if the file exists, if not creates an empty array
 const usersFile = 'users.json';
 if (!fs.existsSync(usersFile)) {
