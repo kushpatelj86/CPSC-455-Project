@@ -1,1 +1,1 @@
-This is a secure chating system
+This is a secure chating system, to run this you first must run the server file, otherwise it will not run, there is rate limiting in which a user can only send certain messages at a time or elese they will be restricted based on each violation, first violation is 10s, second violation is 20s and so on, the passwords are salted in this program. Multiple clients can connect to the server and send messages to each other.
