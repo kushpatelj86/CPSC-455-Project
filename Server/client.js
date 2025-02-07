@@ -53,20 +53,7 @@ async function comparePassword(plainPassword, hashedPassword) {
     return isValid;
 
 
-    /*const object =  currentObject.some(async user => {
-        const ismatch = await bcrypt.compare(password,user.password );
-        console.log(user.password) 
-        console.log(password) 
-        console.log(ismatch) 
-        console.log("checking")
-        console.log(user.username === userName && ismatch)
-        
-        const valid = user.username === userName && ismatch;
-        return valid
-    });
-    console.log("ptiny oject");
-    console.log(object);
-    return true;*/
+    
 }
 
 if(!UserExist()) {
