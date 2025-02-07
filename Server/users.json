@@ -2,5 +2,13 @@
   {
     "username": "kushpatelj",
     "password": "$2b$06$3Ui.tM4C4R.uKTImVzL5dOjF7kRAPlM4vcpLs5RPJebFz8zBUYqyW"
+  },
+  {
+    "username": "User1",
+    "password": "$2b$10$STTv/oBJj/RjHwbwfc6PkOehe3F.21AxRC3PMK50LOQnyupnUsgqu"
+  },
+  {
+    "username": "user2",
+    "password": "$2b$08$Wje.3UGG.Wc4oNDfwun5/uLVMCDLuftx0CqaIVoUmz6h.isbdK7yi"
   }
 ]
