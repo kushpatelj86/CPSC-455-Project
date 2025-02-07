@@ -40,10 +40,7 @@ async function comparePassword(plainPassword, hashedPassword) {
     let isValid = false;
     for (const key in currentObject) {
 
-        console.log(currentObject[key].password === password)
-        console.log(currentObject[key].username === userName)
-        console.log(currentObject[key].password) 
-        console.log(password) 
+       
         const ismatch = await comparePassword(password, currentObject[key].password);
 
         console.log(ismatch) 
