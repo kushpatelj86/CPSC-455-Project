@@ -50,7 +50,6 @@ async function comparePassword(plainPassword, hashedPassword) {
         }
 
     }
-    console.log("is valid ", isValid)
     return isValid;
 
 
@@ -86,10 +85,8 @@ if(!UserExist()) {
     fs.writeFileSync(usersFile, JSON.stringify (currentObject, null, 2));
     console.log("User created");
 }
-console.log("debugging");
 const promise = await checkValidPassword();
-console.log("checkign password ", promise)
-console.log(UserExist() === false)
+
 
 if (UserExist() === false || promise === false) {
     console.log("Invalid password");
