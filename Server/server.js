@@ -1,4 +1,7 @@
 import {WebSocketServer} from 'ws';
+import fs from "fs";
+
+const usersFile = "users.json";
 
 const PORT = 8000;
 
@@ -22,16 +25,29 @@ serverSock.on('connection', (client) => {
 
     client.on('message', (data) => {
         // Parse the incoming message
-        let parsed;
-        try {
-            parsed = JSON.parse(data.toString());
+        let parsedData;
+        parsedData = JSON.parse(data);
+
+        /*try {
+            parsedData = JSON.parse(data);
+            if (parsedData.type === "login") 
+            {
+                handleLogin(client, parsedData.username, parsedData.password);
+            } 
         } catch(e) {
-            client.error("Failed to parse message.", e);
+            console.error("Failed to parse message.", e);
             return;
+        }*/
+
+        if(parsedData.type === "login")
+        {
+            console.log(parsedData.username);
+            handleLogin(client, parsedData.username, parsedData.password);
+
         }
-        //If the message is a join message, set the client's username
-        if(parsed.type && parsed.type === "join") {
-            client.username = parsed.username;
+
+        else if(parsedData.type === "message" ) {
+            /*client.username = parsedData.username;
             console.log(`${client.username} joined the chat.`);
             const joinNotification = JSON.stringify({
                 type: "notification",
@@ -52,10 +68,24 @@ serverSock.on('connection', (client) => {
                 message: `Users in chat: ${userList}`
             });
             client.send(userListMsg);
-            return;
+            return;*/
+            console.log(parsedData.user)
+
+            sendMessage(client,parsedData.user ,parsedData.message);
+
+
+
+
+
+
+
+
+
+
+
         }
         //Rate limiting logic
-        const now = Date.now();
+        /*const now = Date.now();
         if(now < client.rateLimitData.timeoutEnd) {
             const remaining = Math.ceil((client.rateLimitData.timeoutEnd - now) / 1000);
             client.send(JSON.stringify({ error: `Rate limit exceeded. You are timed out for ${remaining} more seconds.` }));
@@ -81,14 +111,14 @@ serverSock.on('connection', (client) => {
             return;
         }
         client.rateLimitData.timestamps.push(now);
-        console.log(`Reiceved message from ${client.username}: ${parsed.message}`);
+        console.log(`Reiceved message from ${client.username}: ${parsedData.message}`);
         // Broadcast the message to all clients
-        const outgoing = JSON.stringify({username: client.username, message: parsed.message});
+        const outgoing = JSON.stringify({username: client.username, message: parsedData.message});
         serverSock.clients.forEach((otherClient) => {
             if(otherClient !== client && otherClient.readyState === client.OPEN) {
                 otherClient.send(outgoing);
             }
-        });
+        });*/
     });
     
     //Helps out with client disconnection
@@ -105,5 +135,78 @@ serverSock.on('connection', (client) => {
         });
     })
 });
+
+
+
+
+
+    function handleLogin(client, username, password) 
+    {
+        if (!fs.existsSync(usersFile)) {
+            fs.writeFileSync(usersFile, JSON.stringify([]));
+        }
+
+
+
+
+
+
+
+
+
+
+
+    let users = JSON.parse(fs.readFileSync(usersFile));
+
+
+
+
+    const userExists = users.some(user => user.username === username );
+
+
+    if(!userExists)
+    {
+        const newUser = {
+        
+            "username" : username,
+            "password" : password
+            
+        };
+        users.push(newUser);
+        fs.writeFileSync(usersFile, JSON.stringify (users, null, 2));
+        console.log("User created");
+    }
+
+
+
+
+
+
+
+
+    const isValidUser = users.some(user => user.username === username && user.password === password);
+
+    client.send(JSON.stringify({ type: "login", status: isValidUser ? "success" : "fail" }));
+}
+
+
+function sendMessage(sender, user, message) {
+
+
+    let striuser = `${user}`
+    serverSock.clients.forEach((client) => {
+        if (client.readyState === sender.OPEN) {
+            client.send(JSON.stringify({ type: "message", username: striuser, message }));
+        }
+    });
+
+
+
+}
+
+
+
+
+
 
 console.log( (new Date()) + " Server is listening on port " + PORT);

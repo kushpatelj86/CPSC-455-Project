@@ -42,10 +42,12 @@
                         document.getElementById("chat-area").style.display = "block";
                         document.getElementById("username").disabled = true;
                         document.getElementById("password").disabled = true;
-                    } else {
+                    } 
+                    else {
                         alert("Invalid credentials!");
                     }
-                } else if (data.type === "message") {
+                } 
+                else if (data.type === "message") {
                     updateChat(data.username, data.message);
                 }
             };
@@ -61,11 +63,13 @@
     
         function sendMessage() {
             const message = document.getElementById("message").value;
+            const user = document.getElementById("username").value;
+
             if (message.trim() === "") 
             {
                 return;
             }
-            socket.send(JSON.stringify({ type: "message", message }));
+            socket.send(JSON.stringify({ type: "message", message, user}));
             document.getElementById("message").value = "";
         }
     

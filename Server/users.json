@@ -2,5 +2,13 @@
   {
     "username": "kushpatelj",
     "password": "$2b$06$3Ui.tM4C4R.uKTImVzL5dOjF7kRAPlM4vcpLs5RPJebFz8zBUYqyW"
+  },
+  {
+    "username": "user1",
+    "password": "user1"
+  },
+  {
+    "username": "user2",
+    "password": "user2"
   }
 ]
