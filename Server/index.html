@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>WebSocket Chat</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <h2>Login</h2> 
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <div id="chat-area" style="display: none;">
+        <h2>Chat</h2>
+        <div id="chat"></div>
+        <input type="text" id="message" placeholder="Type a message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <script>
+        let socket;
+    
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+    
+            // Open WebSocket connection
+            socket = new WebSocket("ws://localhost:8000");
+    
+            socket.onopen = () => {
+                console.log("Connected to WebSocket server");
+    
+                // Send login request
+                socket.send(JSON.stringify({ type: "login", username, password }));
+            };
+    
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log("Received:", data);
+    
+                if (data.type === "login") {
+                    if (data.status === "success") {
+                        document.getElementById("chat-area").style.display = "block";
+                        document.getElementById("username").disabled = true;
+                        document.getElementById("password").disabled = true;
+                    } else {
+                        alert("Invalid credentials!");
+                    }
+                } else if (data.type === "message") {
+                    updateChat(data.username, data.message);
+                }
+            };
+    
+            socket.onerror = (error) => {
+                console.error("WebSocket Error:", error);
+            };
+    
+            socket.onclose = () => {
+                console.log("Disconnected from WebSocket server");
+            };
+        }
+    
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+            if (message.trim() === "") 
+            {
+                return;
+            }
+            socket.send(JSON.stringify({ type: "message", message }));
+            document.getElementById("message").value = "";
+        }
+    
+        function updateChat(username, message) {
+            const chatDiv = document.getElementById("chat");
+            const msgElement = document.createElement("p");
+            msgElement.innerHTML = `<strong>${username}:</strong> ${message}`;
+            chatDiv.appendChild(msgElement);
+        }
+    </script>
+    
+</body>
+</html>
