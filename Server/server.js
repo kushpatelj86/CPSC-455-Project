@@ -1,5 +1,7 @@
 import {WebSocketServer} from 'ws';
 import fs from "fs";
+import bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 
 const usersFile = "users.json";
 
@@ -137,44 +139,73 @@ serverSock.on('connection', (client) => {
 });
 
 
+async function comparePassword(plainPassword, hashedPassword) {
+    try {
+        const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
+        return isMatch;  
+    } catch (err) {
+        console.error('Error comparing password:', err);
+    }
+}
 
 
 
-    function handleLogin(client, username, password) 
+    async function handleLogin(client, username, password) 
     {
         if (!fs.existsSync(usersFile)) {
             fs.writeFileSync(usersFile, JSON.stringify([]));
         }
 
-
-
-
-
-
-
-
-
-
-
-    let users = JSON.parse(fs.readFileSync(usersFile));
-
-
-
-
-    const userExists = users.some(user => user.username === username );
-
-
-    if(!userExists)
-    {
-        const newUser = {
-        
-            "username" : username,
-            "password" : password
+        const salt =   bcrypt.genSaltSync(randomInt((password.length)));
+        const hash =  await bcrypt.hash(password, salt);
             
-        };
-        users.push(newUser);
-        fs.writeFileSync(usersFile, JSON.stringify (users, null, 2));
-        console.log("User created");
+
+
+
+
+
+
+
+
+
+
+
+        let users = JSON.parse(fs.readFileSync(usersFile));
+
+
+
+
+        const userExists = users.some(user => user.username === username );
+
+
+        if(!userExists)
+        {
+            const newUser = {
+            
+                "username" : username,
+                "password" : hash
+                
+            };
+            users.push(newUser);
+            fs.writeFileSync(usersFile, JSON.stringify (users, null, 2));
+            console.log("User created");
+        }
+
+    let isValid = false;
+    for (const key in users) {
+        
+         
+        const ismatch = await comparePassword(password, users[key].password);
+
+        console.log(ismatch) 
+        console.log("checking")
+        console.log("checking if true or false ", users[key].username === username && ismatch)
+        if(users[key].username === username && ismatch)
+        {
+            isValid = true;
+            break;
+        }
+  
     }
 
 
@@ -184,9 +215,10 @@ serverSock.on('connection', (client) => {
 
 
 
-    const isValidUser = users.some(user => user.username === username && user.password === password);
 
-    client.send(JSON.stringify({ type: "login", status: isValidUser ? "success" : "fail" }));
+        const isValidUser = users.some(user => user.username === username && isValid);
+
+        client.send(JSON.stringify({ type: "login", status: isValidUser ? "success" : "fail" }));
 }
 
 
@@ -203,6 +235,8 @@ function sendMessage(sender, user, message) {
 
 
 }
+
+
 
 
 
