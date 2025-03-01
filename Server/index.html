@@ -6,13 +6,16 @@
 </head>
 <body>
     <h2>Login</h2> 
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
+    <label for="username">Username</label><br>
+    <input type="text" id="username" placeholder="Username"><br>
+    <label for="password">Password</label><br>
+    <input type="password" id="password" placeholder="Password"><br>
     <button onclick="login()">Login</button>
 
     <div id="chat-area" style="display: none;">
         <h2>Chat</h2>
         <div id="chat"></div>
+        <label for="message">Message</label><br>
         <input type="text" id="message" placeholder="Type a message">
         <button onclick="sendMessage()">Send</button>
     </div>
@@ -76,7 +79,7 @@
         function updateChat(username, message) {
             const chatDiv = document.getElementById("chat");
             const msgElement = document.createElement("p");
-            msgElement.innerHTML = `<strong>${username}:</strong> ${message}`;
+            msgElement.innerHTML = `<b>${username}:</b> ${message}`;
             chatDiv.appendChild(msgElement);
         }
     </script>
