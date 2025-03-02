@@ -51,7 +51,18 @@
                     }
                 } 
                 else if (data.type === "message") {
+
+
+
                     updateChat(data.username, data.message);
+                }
+
+
+                else if (data.type === "message") {
+
+
+
+                    showError(data.error);
                 }
             };
     
@@ -68,8 +79,11 @@
             const message = document.getElementById("message").value;
             const user = document.getElementById("username").value;
 
-            if (message.trim() === "") 
+            if (message.trim() === "" || message.trim().toLowerCase() === 'exit') 
             {
+                document.getElementById("chat-area").style.display = "none";
+                socket.close();
+
                 return;
             }
             socket.send(JSON.stringify({ type: "message", message, user}));
@@ -82,6 +96,16 @@
             msgElement.innerHTML = `<b>${username}:</b> ${message}`;
             chatDiv.appendChild(msgElement);
         }
+
+        function showError(error) {
+            const chatDiv = document.getElementById("chat");
+            const msgElement = document.createElement("p");
+            msgElement.innerHTML = `<b>${error}:</b>`;
+            chatDiv.appendChild(msgElement);
+        }
+
+
+
     </script>
     
 </body>

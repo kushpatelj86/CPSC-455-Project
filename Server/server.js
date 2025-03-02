@@ -40,11 +40,20 @@ serverSock.on('connection', (client) => {
             console.error("Failed to parse message.", e);
             return;
         }*/
+       
+
 
         if(parsedData.type === "login")
         {
-            console.log(parsedData.username);
-            handleLogin(client, parsedData.username, parsedData.password);
+            try {
+                console.log(parsedData.username);
+                handleLogin(client, parsedData.username, parsedData.password);
+            } 
+            catch (error) {
+                console.error("Failed to parse message.", error);
+                return;
+            }
+            
 
         }
 
@@ -72,20 +81,46 @@ serverSock.on('connection', (client) => {
             client.send(userListMsg);
             return;*/
             console.log(parsedData.user)
+            try {
+                sendMessage(client,parsedData.user ,parsedData.message);
+ 
+            } 
+            catch (error) {
+                console.error("Failed to parse message.", error);
+                return;
+            }
+        }
 
-            sendMessage(client,parsedData.user ,parsedData.message);
+        else if(parsedData.type === "join")
+        {
 
-
-
-
-
-
-
-
-
-
+            client.username = parsedData.username;
+            console.log(`${client.username} joined the chat.`);
+            const joinNotification = JSON.stringify({
+                type: "notification",
+                message: `${client.username} joined the chat.`
+            });
+            serverSock.clients.forEach((otherClient) => {
+                if(otherClient !== client && otherClient.readyState === client.OPEN) {
+                    otherClient.send(joinNotification);
+                }
+            });
+            //Building a list of all the usernames in the chat
+            const userList = Array.from(serverSock.clients)
+                .map(c => c.username)
+                .filter(name => name && name !== "Anonymous")
+                .join(", ");
+            const userListMsg = JSON.stringify({
+                type: "userList",
+                message: `Users in chat: ${userList}`
+            });
+            client.send(userListMsg);
+            return;
 
         }
+
+
+
         //Rate limiting logic
         /*const now = Date.now();
         if(now < client.rateLimitData.timeoutEnd) {
@@ -223,6 +258,37 @@ async function comparePassword(plainPassword, hashedPassword) {
 
 
 function sendMessage(sender, user, message) {
+
+        const now = Date.now();
+        console.log(now);
+        console.log(sender.rateLimitData.timeoutEnd);
+
+        if(now < sender.rateLimitData.timeoutEnd) {
+            const remaining = Math.ceil((sender.rateLimitData.timeoutEnd - now) / 1000);
+            sender.send(JSON.stringify({type: "error" ,error: `Rate limit exceeded. You are timed out for ${remaining} more seconds.` }));
+            console.log(`Client is still timed out. Message rejected.`);
+            return;
+        }
+        // Remove timestamps older than the rate limit window
+        sender.rateLimitData.timestamps = sender.rateLimitData.timestamps.filter((timestamp) =>
+           now - timestamp < RATE_LIMIT_WINDOW_MS
+        );
+        // Reset the violation count if the last violation was more than a minute ago
+        if(now - sender.rateLimitData.lastViolationTime > RESET_VIOLATION_WINDOW_MS) {
+            sender.rateLimitData.exceedCount = 0;
+        }
+        // If the client has exceeded the rate limit, send an error message and return
+        if(sender.rateLimitData.timestamps.length >= MAX_MESSAGES_PER_WINDOW) {
+            sender.rateLimitData.exceedCount++;
+            sender.rateLimitData.lastViolationTime = now;
+            const timeoutDuration = sender.rateLimitData.exceedCount * 10000;
+            sender.rateLimitData.timeoutEnd = now + timeoutDuration;
+            sender.send(JSON.stringify({type: "error" ,error: `Rate limit exceeded. You are timed out for ${timeoutDuration / 1000} seconds.` }));
+            console.log(`Rate limit exceeded. Client timed out for ${timeoutDuration / 1000} seconds (Violation count: ${client.rateLimitData.exceedCount}).`);
+            return;
+        }
+        sender.rateLimitData.timestamps.push(now);
+        console.log(`Reiceved message from ${sender.username}: ${message}`);
 
 
     let striuser = `${user}`
