@@ -12,18 +12,11 @@ const ALGORITHM = 'aes-256-gcm'; // AES algorithm with Galois/Counter Mode
 // Path to the PEM key file (must contain a hex-encoded 32-byte key)
 const keyPath = path.join(__dirname, 'aes-key.pem');
 
-let SYMMETRIC_KEY;
-try {
-  const hexKey = fs.readFileSync(keyPath, 'utf-8').trim();
-  SYMMETRIC_KEY = Buffer.from(hexKey, 'hex');
+const hexKey = fs.readFileSync(keyPath, 'utf-8').trim();
+const SYMMETRIC_KEY = Buffer.from(hexKey, 'hex');
 
-  if (SYMMETRIC_KEY.length !== 32) {
-    throw new Error('Invalid key length. Expected 32 bytes for AES-256.');
-  }
-} catch (err) {
-  console.error('Failed to read symmetric key:', err.message);
-  process.exit(1);
-}
+
+
 
 // Encrypt Message
 export function encrypt(message) {

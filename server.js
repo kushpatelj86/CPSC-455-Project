@@ -4,7 +4,6 @@ import express from 'express';
 import https from 'https'; 
 import { WebSocketServer } from 'ws';
 import { fileURLToPath } from 'url';
-
 import { rateLimitMap, resetRateLimit,rateLimit } from './protections/rateLimiting.js';  // Import from the external file
 import { resetLoginLimit ,limitLogin, loginAttempts} from './protections/loginlimiting.js';
 import { encrypt } from './protections/encryption.js';
@@ -13,7 +12,6 @@ import { encrypt } from './protections/encryption.js';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 // MongoDB connection URI
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,9 +23,7 @@ const STATIC_DIR = path.join(__dirname, './public');
 app.use(express.static(STATIC_DIR));
 app.use(express.json());
 
-console.log("__filename ", __filename);
-console.log("__dirname ", __dirname);
-console.log("STATIC_DIR ", STATIC_DIR);
+
 
 // Serve main page
 app.get('/', (req, res) => {
@@ -35,8 +31,6 @@ app.get('/', (req, res) => {
 });
 
 //Generated Certificates with  "openssl req -nodes -new -x509 -keyout certifications/key.pem -out certifications/certification.pem -days 365"
-
-// SSL/TLS Certificates
 const CERT_PATH = path.join(__dirname, './certifications');
 
 
@@ -62,14 +56,14 @@ const uri = 'mongodb://localhost:27017/USERS';
 
 
 
-
+//Connects to database
 
 async function connectDB() {
   try {
     await mongoose.connect(uri);
-    console.log(" MongoDB Connected");
+    console.log("MongoDB Connected");
   } catch (err) {
-    console.error(" MongoDB Connection Error:", err);
+    console.error("MongoDB Connection Error:", err);
   }
 }
 connectDB();
@@ -120,8 +114,6 @@ function checkValidPassword(password) {
 
   return true;
 }
-
-
 
 
 // Send authentication response
@@ -209,10 +201,9 @@ wss.on('connection', (client, req) => {
 
       if (parsedData.type === "login") {
         console.log("captchaCode ", captchaCode)
-        if (!username || !password) {
+        if (!parsedData.username || !parsedData.password) {
               sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.");
-
-          }
+        }
 
         // Apply login limit check before proceeding with authentication
         if (!limitLogin(client)) {
@@ -265,7 +256,7 @@ wss.on('connection', (client, req) => {
         if (!username || !password) {
              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.");
           }   
-          // Validate password strength
+          // Checks for password strength
           const passwordValidation = checkValidPassword(password);
           if (!passwordValidation) 
           {

@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', sans-serif;
-    background-color: #f4f6f8;
+    background-color:white;
     margin: 0;
     padding: 40px 20px;
     display: flex;
@@ -14,9 +14,8 @@ body {
   }
   
   #authBox, #chatBox {
-    background: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px;
     padding: 20px;
     width: 100%;
     max-width: 400px;
@@ -31,27 +30,22 @@ body {
   }
   
   input {
-    border: 1px solid #ccc;
+    border: 1px solid ;
   }
   
   button {
-    background-color: #007bff;
+    background-color: blue;
     color: white;
     border: none;
     cursor: pointer;
   }
   
-  button:hover {
-    background-color: #0056b3;
-  }
-  
   #messages {
     height: 300px;
     overflow-y: auto;
-    border: 1px solid #ccc;
+    border: 1px solid;
     padding: 10px;
     border-radius: 5px;
-    background-color: #fff;
   }
   
   .msg {
@@ -64,26 +58,23 @@ body {
   }
   
   .msg-sender {
-    background-color: #d0e9ff;
     align-self: flex-start;
     text-align: left;
     float: left;
   }
   
   .msg-receiver {
-    background-color: #e0f7fa;
     align-self: flex-end;
     text-align: right;
     float: right;
   }
   
   .notify {
-    background-color: #fff3cd;
     clear: both;
   }
   
   #captchaCanvas {
-    border: 1px solid #ccc;
+    border: 1px solid ;
     margin: 10px 0;
     display: block;
   }

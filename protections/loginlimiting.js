@@ -1,13 +1,19 @@
 export const loginAttempts = new Map();
 
+
+//Checks the number of times a user logs in
 export function limitLogin(client) {
   const now = Date.now();
   const key = client._socket.remoteAddress;
-  const attemptData = loginAttempts.get(key) || {
-    attempts: 0,
-    lastAttempt: now,
-    lastViolationTime: null
-  };
+  let attemptData = loginAttempts.get(key);
+  if (attemptData == null) { 
+    attemptData = {
+      attempts: 0,
+      lastAttempt: now,
+      lastViolationTime: null
+    };
+  }
+
 
   const LOCK_DURATION = 15 * 60 * 1000; // 15 minutes
   const MAX_ATTEMPTS = 5;
@@ -36,6 +42,8 @@ export function limitLogin(client) {
   loginAttempts.set(key, attemptData);
   return true;
 }
+
+//Resets login limits
 
 export function resetLoginLimit(client) {
   const key = client._socket.remoteAddress;

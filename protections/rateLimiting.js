@@ -1,11 +1,13 @@
 export const rateLimitMap = new Map();
 
+
+//Enforces rate limiting
 export function rateLimit(client, actionType, wss) {
   const now = Date.now();
   const key = client.username || client._socket.remoteAddress;
 
   const timeWindow = 60 * 1000; // 60 seconds
-  const maxRequests = 5;
+  const maxMessages = 5;
 
   let userData = rateLimitMap.get(key);
 
@@ -24,7 +26,7 @@ export function rateLimit(client, actionType, wss) {
 
   userData.count++;
 
-  if (userData.count > maxRequests) {
+  if (userData.count > maxMessages) {
     client.send(JSON.stringify({
       type: actionType,
       status: "fail",
@@ -37,6 +39,7 @@ export function rateLimit(client, actionType, wss) {
   return true;
 }
 
+//Resets rate limiting
 export function resetRateLimit(client) {
   const key = client.username || client._socket.remoteAddress;
   rateLimitMap.delete(key);

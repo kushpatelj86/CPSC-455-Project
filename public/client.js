@@ -1,4 +1,4 @@
-const ws = new WebSocket('wss://' + location.host);
+const ws = new WebSocket('wss://localhost:8000');
 let currentUsername = "";
 
 ws.onopen = () => console.log("WebSocket connected.");
@@ -33,13 +33,18 @@ ws.onmessage = async (msg) => {
       try {
         const decrypted = await decrypt(data.message);
         const msg = document.createElement("div");
-        msg.className = `msg ${isSender ? "msg-sender" : "msg-receiver"}`;
-        msg.textContent = `[${data.username}]: ${decrypted}`;
+        if (isSender) {
+          msg.className = "msg msg-sender";
+        } 
+        else {
+          msg.className = "msg msg-receiver";
+        }
+        msg.textContent = `${data.username}: ${decrypted}`;
         msgBox.appendChild(msg);
       } catch (err) {
         const errMsg = document.createElement("div");
         errMsg.className = "msg notify";
-        errMsg.textContent = `[ERROR] Failed to decrypt: ${err.message}`;
+        errMsg.textContent = `Error Failed to decrypt: ${err.message}`;
         msgBox.appendChild(errMsg);
       }
       msgBox.scrollTop = msgBox.scrollHeight;
@@ -52,9 +57,9 @@ ws.onmessage = async (msg) => {
     const note = document.createElement("div");
     note.className = "msg notify";
     try {
-      note.textContent = `[NOTIFY]: ${await decrypt(data.message)}`;
+      note.textContent = `Notification: ${await decrypt(data.message)}`;
     } catch (err) {
-      note.textContent = `[ERROR] Failed to decrypt: ${err.message}`;
+      note.textContent = `Error Failed to decrypt: ${err.message}`;
     }
     msgBox.appendChild(note);
     msgBox.scrollTop = msgBox.scrollHeight;
@@ -70,31 +75,14 @@ function generateCaptcha() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   generatedCaptcha = "";
 
-  // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Background
-  ctx.fillStyle = "#f2f2f2";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Draw random characters
-  ctx.font = "30px Arial";
   for (let i = 0; i < 6; i++) {
     const char = chars.charAt(Math.floor(Math.random() * chars.length));
     generatedCaptcha += char;
     const x = 20 + i * 20;
-    const y = 35 + Math.random() * 5;
-    ctx.fillStyle = `rgb(${Math.random() * 150},${Math.random() * 150},${Math.random() * 150})`;
+    const y = 35;
     ctx.fillText(char, x, y);
-  }
-
-  // Add some noise
-  for (let i = 0; i < 20; i++) {
-    ctx.beginPath();
-    ctx.moveTo(Math.random() * 150, Math.random() * 50);
-    ctx.lineTo(Math.random() * 150, Math.random() * 50);
-    ctx.strokeStyle = "#ccc";
-    ctx.stroke();
   }
 }
 
@@ -102,6 +90,7 @@ function checkCaptcha() {
   const userInput = document.getElementById("captchaInput").value.trim();
   return userInput === generatedCaptcha;
 }
+
 
 function login() {
   const username = document.getElementById("username").value;

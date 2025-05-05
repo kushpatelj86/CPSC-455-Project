@@ -16,7 +16,6 @@ SecureChat is a real-time chat system built with Node.js and WebSockets. It supp
   * At least one lowercase letter
   * At least one number
   * At least one special character
-  * Real-time password strength feedback during account creation
 
 
 - **Message Encryption:**  
@@ -52,19 +51,18 @@ node server.js
 ```
 
 
-## helper functions
-
-server.js helper functions are located in the src folder
+## Protection functions
+There is a protection folder in which encryption, rate limiting, and login limiting is put in place and 
 ## Instructions
 
 - **Login:**  
   Enter your username and password. If the user does not exist, a new account is automatically created with that username and password.
 
 - **Join:**  
-  There'll be a join message sent to you when you log in .
+  There'll be a join message sent to you when you log in.
 
 - **Chat:**  
-  The chat will be in the same window and at the same time but youll have an option to send a message to everyone or a select user if you choose a select user only the select user will be able to see the message no one else
+  The chat will be in the same window and at the same time but you'll have an option to send a message to everyone or a select user if you choose a select user only the select user will be able to see the message no one else
 
 - **Logout:**  
-   Use `logout` to disconnect from the chat.
+   Use the logout button to disconnect from the chat.
