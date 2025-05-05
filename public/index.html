@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Kush In Tech</h1>
+
+  <div id="authBox">
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <canvas id="captchaCanvas" width="150" height="50"></canvas>
+
+    <input type="text" id="captchaInput" placeholder="Enter CAPTCHA text" />
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="chatBox" style="display:none;">
+    <h2>Welcome, <span id="currentUser"></span></h2>
+    <input type="text" id="receiver" placeholder="Receiver (All or username)" value="All" />
+    <input type="text" id="msgInput" placeholder="Type your message" />
+    <button onclick="sendMessage()">Send</button>
+    <div id="messages"></div>
+  </div>
+
+  <script src="client.js"></script>
+</body>
+</html>

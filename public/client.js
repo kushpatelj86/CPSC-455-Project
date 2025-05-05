@@ -1,0 +1,188 @@
+const ws = new WebSocket('wss://' + location.host);
+let currentUsername = "";
+
+ws.onopen = () => console.log("WebSocket connected.");
+
+ws.onmessage = async (msg) => {
+  const data = JSON.parse(msg.data);
+  console.log("Received:", data);
+
+  const msgBox = document.getElementById("messages");
+  const isSender = data.username === currentUsername;
+
+  if (data.type === "login" || data.type === "registration") {
+    alert(data.message);
+    if (data.status === "success") {
+      document.getElementById("authBox").style.display = "none";
+      document.getElementById("chatBox").style.display = "block";
+      document.getElementById("currentUser").textContent = currentUsername;
+      joinChat();
+    }
+  }
+
+  if (data.type === "message") {
+    try {
+      const decrypted = await decrypt(data.message);
+      const msg = document.createElement("div");
+      msg.className = `msg ${isSender ? "msg-sender" : "msg-receiver"}`;
+      msg.textContent = `[${data.username}]: ${decrypted}`;
+      msgBox.appendChild(msg);
+    } catch (err) {
+      const errMsg = document.createElement("div");
+      errMsg.className = "msg notify";
+      errMsg.textContent = `[ERROR] Failed to decrypt: ${err.message}`;
+      msgBox.appendChild(errMsg);
+    }
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+
+  if (data.type === "notification") {
+    const note = document.createElement("div");
+    note.className = "msg notify";
+    try {
+      note.textContent = `[NOTIFY]: ${await decrypt(data.message)}`;
+    } catch (err) {
+      note.textContent = `[ERROR] Failed to decrypt: ${err.message}`;
+    }
+    msgBox.appendChild(note);
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+};
+
+
+let generatedCaptcha = "";
+
+function generateCaptcha() {
+  const canvas = document.getElementById("captchaCanvas");
+  const ctx = canvas.getContext("2d");
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  generatedCaptcha = "";
+
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Background
+  ctx.fillStyle = "#f2f2f2";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw random characters
+  ctx.font = "30px Arial";
+  for (let i = 0; i < 6; i++) {
+    const char = chars.charAt(Math.floor(Math.random() * chars.length));
+    generatedCaptcha += char;
+    const x = 20 + i * 20;
+    const y = 35 + Math.random() * 5;
+    ctx.fillStyle = `rgb(${Math.random() * 150},${Math.random() * 150},${Math.random() * 150})`;
+    ctx.fillText(char, x, y);
+  }
+
+  // Add some noise
+  for (let i = 0; i < 20; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * 150, Math.random() * 50);
+    ctx.lineTo(Math.random() * 150, Math.random() * 50);
+    ctx.strokeStyle = "#ccc";
+    ctx.stroke();
+  }
+}
+
+function checkCaptcha() {
+  const userInput = document.getElementById("captchaInput").value.trim();
+  return userInput === generatedCaptcha;
+}
+
+function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const captchaCode = document.getElementById("captchaInput").value;
+
+  // Check CAPTCHA
+  if (!checkCaptcha()) {
+    alert("Incorrect CAPTCHA. Please try again.");
+    generateCaptcha();
+    return;
+  }
+
+  currentUsername = username;
+  ws.send(JSON.stringify({ type: "login", username, password, captchaCode }));
+}
+
+function register() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const captchaCode = document.getElementById("captchaInput").value;
+
+  // Check CAPTCHA
+  if (!checkCaptcha()) {
+    alert("Incorrect CAPTCHA. Please try again.");
+    generateCaptcha();
+    return;
+  }
+
+  currentUsername = username;
+  ws.send(JSON.stringify({ type: "registration", username, password, captchaCode }));
+}
+
+function joinChat() {
+  ws.send(JSON.stringify({ type: "join", username: currentUsername }));
+}
+
+function sendMessage() {
+  const message = document.getElementById("msgInput").value;
+  const receiver = document.getElementById("receiver").value || "All";
+  ws.send(JSON.stringify({ type: "message", username: currentUsername, reciever: receiver, message }));
+  document.getElementById("msgInput").value = "";
+}
+
+function hexToBytes(hex) {
+  const result = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    result.push(parseInt(hex.substr(i, 2), 16));
+  }
+
+  const bytes = new Uint8Array(result)
+
+  return bytes;
+}
+
+//Fetches the external key
+async function fetchKey() {
+  const res = await fetch('/aes-key.pem');
+  if (!res.ok) throw new Error("Failed to fetch key");
+  const hex = (await res.text()).trim();
+  const keyBytes = hexToBytes(hex);
+  if (keyBytes.length !== 32) throw new Error("Invalid key length (expected 32 bytes)");
+  return keyBytes;
+}
+
+const SECRET_KEY = fetchKey();
+
+async function importAesGcmKey(rawKey) {
+  return await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
+}
+
+function concatUint8Arrays(a, b) {
+  const c = new Uint8Array(a.length + b.length);
+  c.set(a);
+  c.set(b, a.length);
+  return c;
+}
+
+async function decrypt(encryptedObject) {
+  const ivBytes = hexToBytes(encryptedObject.iv);
+  const ctBytes = hexToBytes(encryptedObject.ciphertext);
+  const tagBytes = hexToBytes(encryptedObject.authTag);
+  const combined = concatUint8Arrays(ctBytes, tagBytes);
+  const keyBytes = await SECRET_KEY;
+  const key = await importAesGcmKey(keyBytes);
+
+  try {
+    const plainBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes, tagLength: 128 }, key, combined);
+    return new TextDecoder().decode(plainBuffer);
+  } catch (e) {
+    throw new Error("Decryption failed");
+  }
+}
+
+
+window.onload = generateCaptcha;

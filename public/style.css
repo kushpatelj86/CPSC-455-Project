@@ -1,0 +1,89 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  h1 {
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  #authBox, #chatBox {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
+  }
+  
+  input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+  }
+  
+  input {
+    border: 1px solid #ccc;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  #messages {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+  }
+  
+  .msg {
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 75%;
+    word-wrap: break-word;
+    clear: both;
+  }
+  
+  .msg-sender {
+    background-color: #d0e9ff;
+    align-self: flex-start;
+    text-align: left;
+    float: left;
+  }
+  
+  .msg-receiver {
+    background-color: #e0f7fa;
+    align-self: flex-end;
+    text-align: right;
+    float: right;
+  }
+  
+  .notify {
+    background-color: #fff3cd;
+    clear: both;
+  }
+  
+  #captchaCanvas {
+    border: 1px solid #ccc;
+    margin: 10px 0;
+    display: block;
+  }
