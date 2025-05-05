@@ -134,6 +134,8 @@ function sendMessage() {
   document.getElementById("msgInput").value = "";
 }
 
+
+//Converts a value from hex to bytes
 function hexToBytes(hex) {
   const result = [];
   for (let i = 0; i < hex.length; i += 2) {

@@ -47,7 +47,7 @@ const server = https.createServer({
 }, app);
 
 // Initialize server
-const port = process.env.PORT || 8000;
+const port =  8000;
 server.listen(port, () => {
   console.log(`[${new Date().toISOString()}] HTTPS server running at https://localhost:${port}`);
 });
