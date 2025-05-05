@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+//used this website as an reference https://www.geeksforgeeks.org/node-js-crypto-createcipheriv-method/
+
 // Get current file path and directory (ESM compatible)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,23 +42,3 @@ export function encrypt(message) {
   return encryptedobject
 }
 
-// Decrypt Message
-export function decrypt(encryptedObject) {
-  const iv = encryptedObject.iv;
-  const ciphertext = encryptedObject.ciphertext;
-  const authTag = encryptedObject.authTag;
-
-  const ivBuf = Buffer.from(iv, 'hex');
-  const encryptedBuf = Buffer.from(ciphertext, 'hex');
-  const authTagBuf = Buffer.from(authTag, 'hex');
-
-  const decipher = crypto.createDecipheriv(ALGORITHM, SYMMETRIC_KEY, ivBuf);
-  decipher.setAuthTag(authTagBuf);
-
-  const decrypted = Buffer.concat([
-    decipher.update(encryptedBuf),
-    decipher.final()
-  ]);
-
-  return decrypted.toString('utf8');
-}

@@ -148,6 +148,9 @@ function hexToBytes(hex) {
   return bytes;
 }
 
+
+
+
 //Fetches the external key
 async function fetchKey() {
   const res = await fetch('/aes-key.pem');
@@ -158,29 +161,25 @@ async function fetchKey() {
   return keyBytes;
 }
 
+
+//used this github for help https://github.com/mdn/dom-examples/tree/main/web-crypto
 const SECRET_KEY = fetchKey();
 
 async function importAesGcmKey(rawKey) {
   return await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
 }
 
-function concatUint8Arrays(a, b) {
-  const c = new Uint8Array(a.length + b.length);
-  c.set(a);
-  c.set(b, a.length);
-  return c;
-}
 
 async function decrypt(encryptedObject) {
   const ivBytes = hexToBytes(encryptedObject.iv);
   const ctBytes = hexToBytes(encryptedObject.ciphertext);
   const tagBytes = hexToBytes(encryptedObject.authTag);
-  const combined = concatUint8Arrays(ctBytes, tagBytes);
+  const encrypted = new Uint8Array([...ctBytes, ...tagBytes]);
   const keyBytes = await SECRET_KEY;
   const key = await importAesGcmKey(keyBytes);
 
   try {
-    const plainBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes, tagLength: 128 }, key, combined);
+    const plainBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes, tagLength: 128 }, key, encrypted);
     return new TextDecoder().decode(plainBuffer);
   } catch (e) {
     throw new Error("Decryption failed");
