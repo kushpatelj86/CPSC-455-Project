@@ -5,8 +5,8 @@ import https from 'https';
 import { WebSocketServer } from 'ws';
 import { fileURLToPath } from 'url';
 
-import { resetRateLimit, rateLimit } from './protections/rateLimiting.js'
-import { resetLoginLimit ,limitLogin} from './protections/loginlimiting.js';
+import { rateLimitMap, resetRateLimit,rateLimit } from './protections/rateLimiting.js';  // Import from the external file
+import { resetLoginLimit ,limitLogin, loginAttempts} from './protections/loginlimiting.js';
 import { encrypt } from './protections/encryption.js';
 
 //stored encryption,ratelimiting and login limiting in a seprate folder
@@ -351,19 +351,24 @@ wss.on('connection', (client, req) => {
     sendEncryptedNotification(wss, `${client.username} disconnected.`);
     });
 });
-//Resets the login and rate limiting
 setInterval(() => {
   const now = Date.now();
+
   wss.clients.forEach(client => {
-    if (client.authenticated && client.rateLimitData) {
-      ['message'].forEach(type => {
-        if (client.rateLimitData.cooldownUntil[type] <= now) {
-          resetRateLimit(client, type);
-        }
-      });
+    const key = client.username || client._socket.remoteAddress;
+    let rateLimitData = rateLimitMap.get(key);
+
+    if (rateLimitData) {
+      if (now - rateLimitData.windowStart > 60 * 1000) { // 60 seconds window
+        resetRateLimit(client);
+      }
     }
-    if (client.attemptData) {
-      resetLoginLimit(client);
+
+    let loginInAtemmptData = loginAttempts.get(key);
+    if (loginInAtemmptData) {
+      if (now - loginInAtemmptData.lastViolationTime > 60 * 1000) { // 60 seconds window
+        resetLoginLimit(client);
+      }
     }
   });
-}, 5000);  // Run every 5 seconds
+}, 10000); // every 10 seconds

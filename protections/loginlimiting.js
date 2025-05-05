@@ -1,4 +1,4 @@
-const loginAttempts = new Map();
+export const loginAttempts = new Map();
 
 export function limitLogin(client) {
   const now = Date.now();
@@ -20,7 +20,8 @@ export function limitLogin(client) {
 
   if (now - attemptData.lastAttempt > WINDOW) {
     attemptData.attempts = 1;
-  } else {
+  } 
+  else {
     attemptData.attempts++;
   }
 

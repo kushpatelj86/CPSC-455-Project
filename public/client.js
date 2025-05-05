@@ -21,19 +21,31 @@ ws.onmessage = async (msg) => {
   }
 
   if (data.type === "message") {
-    try {
-      const decrypted = await decrypt(data.message);
-      const msg = document.createElement("div");
-      msg.className = `msg ${isSender ? "msg-sender" : "msg-receiver"}`;
-      msg.textContent = `[${data.username}]: ${decrypted}`;
-      msgBox.appendChild(msg);
-    } catch (err) {
-      const errMsg = document.createElement("div");
-      errMsg.className = "msg notify";
-      errMsg.textContent = `[ERROR] Failed to decrypt: ${err.message}`;
-      msgBox.appendChild(errMsg);
+
+
+    //this checks to see if it the message is encrypted or not
+    if(typeof data.message !== 'object')
+    {
+      alert(data.message)
     }
-    msgBox.scrollTop = msgBox.scrollHeight;
+    else
+    {
+      try {
+        const decrypted = await decrypt(data.message);
+        const msg = document.createElement("div");
+        msg.className = `msg ${isSender ? "msg-sender" : "msg-receiver"}`;
+        msg.textContent = `[${data.username}]: ${decrypted}`;
+        msgBox.appendChild(msg);
+      } catch (err) {
+        const errMsg = document.createElement("div");
+        errMsg.className = "msg notify";
+        errMsg.textContent = `[ERROR] Failed to decrypt: ${err.message}`;
+        msgBox.appendChild(errMsg);
+      }
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    
   }
 
   if (data.type === "notification") {

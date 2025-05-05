@@ -1,32 +1,39 @@
-const rateLimitMap = new Map();
+export const rateLimitMap = new Map();
 
 export function rateLimit(client, actionType, wss) {
   const now = Date.now();
   const key = client.username || client._socket.remoteAddress;
-  const limit = rateLimitMap.get(key) || { count: 0, lastTime: now };
 
-  const timeWindow = 10 * 6000; // 60 seconds
+  const timeWindow = 60 * 1000; // 60 seconds
   const maxRequests = 5;
 
-  if (now - limit.lastTime > timeWindow) {
-    limit.count = 1;
-    limit.lastTime = now;
-  } 
-  else {
-    limit.count++;
+  let userData = rateLimitMap.get(key);
+
+  if (!userData) {
+    userData = { count: 1, windowStart: now };
+    rateLimitMap.set(key, userData);
+    return true;
   }
 
-  rateLimitMap.set(key, limit);
+  if (now - userData.windowStart > timeWindow) {
+    userData.count = 1;
+    userData.windowStart = now;
+    rateLimitMap.set(key, userData);
+    return true;
+  }
 
-  if (limit.count > maxRequests) {
+  userData.count++;
+
+  if (userData.count > maxRequests) {
     client.send(JSON.stringify({
       type: actionType,
       status: "fail",
-      message: "You are sending messages too quickly. Please slow down."
+      message: "You are sending messages too quickly. Please wait a minute."
     }));
     return false;
   }
 
+  rateLimitMap.set(key, userData);
   return true;
 }
 
