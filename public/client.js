@@ -146,12 +146,6 @@ function joinChat() {
 }
 
 
-
-function disconnectChat() {
-  ws.send(JSON.stringify({ type: "join", username: currentUsername }));
-}
-
-
 function sendMessage() {
   const message = document.getElementById("msgInput").value;
   const receiver = document.getElementById("receiver").value || "All";
