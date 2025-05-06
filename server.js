@@ -117,12 +117,12 @@ function checkValidPassword(password) {
 
 
 // Send authentication response
-function sendAuthenticationResponse(client,type, status, message = "", limited) {
+function sendAuthenticationResponse(client,type, status, message = "",islimited=false) {
   client.send(JSON.stringify({
     type: type,
     status,
     message,
-    isLoginLimited : limited
+    islimited
   }));
 }
 
@@ -203,13 +203,12 @@ wss.on('connection', (client, req) => {
       if (parsedData.type === "login") {
         console.log("captchaCode ", captchaCode)
         if (!parsedData.username || !parsedData.password) {
-              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",false);
+              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",isLoginLimited);
         }
 
         // Apply login limit check before proceeding with authentication
         if (!limitLogin(client)) {
           isLoginLimited = true;
-
           const LOCK_TIME = 10 * 6000;
           const timeRemaining = LOCK_TIME - (Date.now() - client.attemptData.lastViolationTime);
           sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`,isLoginLimited);
@@ -365,4 +364,4 @@ setInterval(() => {
       }
     }
   });
-}, 10000); // every 10 seconds
+}, 60000); // every 10 seconds

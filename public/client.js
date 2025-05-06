@@ -12,8 +12,8 @@ ws.onmessage = async (msg) => {
 
   if (data.type === "login" || data.type === "registration") {
     alert(data.message);
-    alert(!data.isLoginLimited)
-    if (data.status === "success" && !data.isLoginLimited) {
+    alert(data.islimited);
+    if (data.status === "success" && !data.islimited) {
       document.getElementById("authBox").style.display = "none";
       document.getElementById("chatBox").style.display = "block";
       document.getElementById("currentUser").textContent = currentUsername;

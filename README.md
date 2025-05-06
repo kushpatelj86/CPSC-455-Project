@@ -23,6 +23,9 @@ Kush In Tech Chat is a chatting system built with Node.js and WebSockets. It sup
 
 - **Rate Limiting:**  
   If a client sends more than 5 requests during the first minute he will be restricted from sending more messages 
+- **Login Limiting:**  
+  If a client attempts to log in with the wrong password more than 10 times they are locked out for 1 minute
+
 - **Secure Certificates:**  
   I ran the web sockets on a https server and to generate the certificates required for running it on a https server you must 
 
