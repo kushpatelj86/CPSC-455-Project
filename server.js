@@ -198,7 +198,7 @@ wss.on('connection', (client, req) => {
       console.log("Received:", parsedData);
       console.log("reciver:", parsedData.reciever);
       const { type, username, password, reciever, message, captchaCode } = parsedData;
-
+      let isLoginLimited = false;
       if (parsedData.type === "login") {
         console.log("captchaCode ", captchaCode)
         if (!parsedData.username || !parsedData.password) {
@@ -210,6 +210,7 @@ wss.on('connection', (client, req) => {
           const LOCK_TIME = 10 * 6000;
           const timeRemaining = LOCK_TIME - (Date.now() - client.attemptData.lastViolationTime);
           sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`);
+          isLoginLimited = true;
         }
 
         if (!captchaCode) {
@@ -240,7 +241,7 @@ wss.on('connection', (client, req) => {
           // Check the password only if the user exists
           const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-          if (isPasswordCorrect) {
+          if (isPasswordCorrect && !isLoginLimited) {
             sendAuthenticationResponse(client, parsedData.type ,"success", "Login successful.");
           } 
           else {
