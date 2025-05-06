@@ -135,20 +135,17 @@ function sendMessage() {
   document.getElementById("msgInput").value = "";
 }
 
-
+//used a similiar algorithm for this https://stackoverflow.com/questions/14603205/how-to-convert-hex-string-into-a-bytes-array-and-a-bytes-array-in-the-hex-strin
 //Converts a value from hex to bytes
 function hexToBytes(hex) {
   const result = [];
   for (let i = 0; i < hex.length; i += 2) {
-    result.push(parseInt(hex.substr(i, 2), 16));
+    result.push(parseInt(hex.substring(i, i + 2), 16));
   }
 
-  const bytes = new Uint8Array(result)
-
+  const bytes = new Uint8Array(result);
   return bytes;
 }
-
-
 
 
 //Fetches the external key
@@ -162,24 +159,25 @@ async function fetchKey() {
 }
 
 
-//used this github for help https://github.com/mdn/dom-examples/tree/main/web-crypto
+//used this website for key https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#aes-gcm
 const SECRET_KEY = fetchKey();
 
 async function importAesGcmKey(rawKey) {
-  return await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
+  return await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, true, ["decrypt"]);
 }
+
 
 
 async function decrypt(encryptedObject) {
   const ivBytes = hexToBytes(encryptedObject.iv);
   const ctBytes = hexToBytes(encryptedObject.ciphertext);
   const tagBytes = hexToBytes(encryptedObject.authTag);
-  const encrypted = new Uint8Array([...ctBytes, ...tagBytes]);
+  const combined = new Uint8Array([...ctBytes, ...tagBytes]);
   const keyBytes = await SECRET_KEY;
   const key = await importAesGcmKey(keyBytes);
 
   try {
-    const plainBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes, tagLength: 128 }, key, encrypted);
+    const plainBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes, tagLength: 128 }, key, combined);
     return new TextDecoder().decode(plainBuffer);
   } catch (e) {
     throw new Error("Decryption failed");

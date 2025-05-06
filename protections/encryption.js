@@ -13,7 +13,6 @@ const ALGORITHM = 'aes-256-gcm'; // AES algorithm with Galois/Counter Mode
 //generate key with "openssl rand -hex 32 > aes-key.pem"
 // Path to the PEM key file (must contain a hex-encoded 32-byte key)
 const keyPath = path.join(__dirname, 'aes-key.pem');
-
 const hexKey = fs.readFileSync(keyPath, 'utf-8').trim();
 const SYMMETRIC_KEY = Buffer.from(hexKey, 'hex');
 
@@ -32,7 +31,7 @@ export function encrypt(message) {
 
   const authTag = cipher.getAuthTag();
 
-  // Return as an object instead of colon-separated string
+  // Return as an object 
   const encryptedobject = {
     iv: iv.toString('hex'),
     ciphertext: encrypted.toString('hex'),
