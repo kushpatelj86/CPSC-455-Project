@@ -117,11 +117,12 @@ function checkValidPassword(password) {
 
 
 // Send authentication response
-function sendAuthenticationResponse(client,type, status, message = "") {
+function sendAuthenticationResponse(client,type, status, message = "", limited) {
   client.send(JSON.stringify({
     type: type,
     status,
-    message
+    message,
+    isLoginLimited : limited
   }));
 }
 
@@ -202,19 +203,20 @@ wss.on('connection', (client, req) => {
       if (parsedData.type === "login") {
         console.log("captchaCode ", captchaCode)
         if (!parsedData.username || !parsedData.password) {
-              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.");
+              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",false);
         }
 
         // Apply login limit check before proceeding with authentication
         if (!limitLogin(client)) {
+          isLoginLimited = true;
+
           const LOCK_TIME = 10 * 6000;
           const timeRemaining = LOCK_TIME - (Date.now() - client.attemptData.lastViolationTime);
-          sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`);
-          isLoginLimited = true;
+          sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`,isLoginLimited);
         }
 
         if (!captchaCode) {
-          sendAuthenticationResponse(client,parsedData.type , "fail", "No captchaCode code provided.");
+          sendAuthenticationResponse(client,parsedData.type , "fail", "No captchaCode code provided.",isLoginLimited);
         }
 
         let user = null;
@@ -225,7 +227,7 @@ wss.on('connection', (client, req) => {
 
           if (!user) {
             console.log('User does not exist.');
-            sendAuthenticationResponse(client, parsedData.type ,"fail", "User does not exist.");
+            sendAuthenticationResponse(client, parsedData.type ,"fail", "User does not exist.",isLoginLimited);
 
           } 
           else {
@@ -242,10 +244,10 @@ wss.on('connection', (client, req) => {
           const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
           if (isPasswordCorrect && !isLoginLimited) {
-            sendAuthenticationResponse(client, parsedData.type ,"success", "Login successful.");
+            sendAuthenticationResponse(client, parsedData.type ,"success", "Login successful.",isLoginLimited);
           } 
           else {
-            sendAuthenticationResponse(client,parsedData.type , "fail", "Incorrect password.");
+            sendAuthenticationResponse(client,parsedData.type , "fail", "Incorrect password.",isLoginLimited);
           }
         } catch (error) {
           console.error("Error during password comparison:", error);
@@ -255,20 +257,20 @@ wss.on('connection', (client, req) => {
       else if (parsedData.type === "registration") 
       {
         if (!username || !password) {
-             sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.");
+             sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",isLoginLimited);
           }   
           // Checks for password strength
           const passwordValidation = checkValidPassword(password);
           if (!passwordValidation) 
           {
-            sendAuthenticationResponse(client,parsedData.type , "fail", "Password must be at least 8 characters long, with an uppercase letter, a lowercase letter, a number, and a special character.");
+            sendAuthenticationResponse(client,parsedData.type , "fail", "Password must be at least 8 characters long, with an uppercase letter, a lowercase letter, a number, and a special character.",isLoginLimited);
           }
         
           try {
             // Check if the username already exists in MongoDB
             const existingUser = await User.findOne({ username });
             if (existingUser) {
-              sendAuthenticationResponse(client,parsedData.type , "fail", "Username already exists.");
+              sendAuthenticationResponse(client,parsedData.type , "fail", "Username already exists.",isLoginLimited);
             }
         
             // Hash the password and create a new user
@@ -279,7 +281,7 @@ wss.on('connection', (client, req) => {
             console.log(`Created new user account for ${username}`);
         
             // Send success response
-            sendAuthenticationResponse(client,parsedData.type , "success", "User registered successfully.");
+            sendAuthenticationResponse(client,parsedData.type , "success", "User registered successfully.",isLoginLimited);
             
           } catch (err) {
             console.error("Error during registration:", err);
