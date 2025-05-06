@@ -1,6 +1,6 @@
-# SecureChat
+# Kush In Tech Chat
 
-SecureChat is a real-time chat system built with Node.js and WebSockets. It supports user authentication authentication with strong password requirements, message encryption, rate limiting, and limited logging attempts. It uses a secure WebSocket connection (wss://) over HTTPS. This chat applications gives users option to send it to everyone or individuals 
+Kush In Tech Chat is a chatting system built with Node.js and WebSockets. It supports user authentication authentication with strong password requirements, message encryption, rate limiting, and limited logging attempts. It uses a secure WebSocket connection (wss://) over HTTPS. This chat applications gives users option to send it to everyone or individuals 
 
 ## Features
 
@@ -22,8 +22,9 @@ SecureChat is a real-time chat system built with Node.js and WebSockets. It supp
   All messages are encrypted using the AES-GCM algorithm, which provides authentication, to generate the key you must run the command "openssl rand -hex 32 > aes-key.pem"
 
 - **Rate Limiting:**  
-  If a client sends more than 5 requests within 10 seconds, further requests during that same 10-second window will be rejected. After the 10 seconds have passed, their count is reset, and they can
-
+  If a client sends more than 5 requests during the first minute he will be restricted from sending more messages 
+- **Secure Certificates:**  
+  I ran the web sockets on a https server and to generate the certificates required for running it on a https server you must 
 
 
 
@@ -43,7 +44,7 @@ npm install
 
 ## Running the Server
 
-By default, the server listens on port 8001 using a secured WebSocket connection (wss://). 
+By default, the server listens on port 8000 using a secured WebSocket connection (wss://). 
 
 Start the server (connects both server and client side) with :
 ```bash
@@ -52,11 +53,11 @@ node server.js
 
 
 ## Protection functions
-There is a protection folder in which encryption, rate limiting, and login limiting is put in place and 
+There is a protection folder in which encryption, rate limiting, and login limiting is put in place and they are used using external libraries like bcrypt or crypto
 ## Instructions
 
 - **Login:**  
-  Enter your username and password. If the user does not exist, a new account is automatically created with that username and password.
+  Enter your username and password and captcha code. If the user doesn't exist create a new user by clicking the register button
 
 - **Join:**  
   There'll be a join message sent to you when you log in.

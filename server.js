@@ -305,7 +305,7 @@ wss.on('connection', (client, req) => {
         
           const encryptedMessage = encrypt(message);
           console.log("enceypted message ", encryptedMessage)
-          const outgoing = JSON.stringify({
+          const newMessage = JSON.stringify({
             type: "message",
             username,
             reciever,
@@ -314,11 +314,11 @@ wss.on('connection', (client, req) => {
         
           if (reciever === "All") 
           {
-            broadcast(outgoing, wss);
+            broadcast(newMessage, wss);
           } 
           else 
           {
-            sendToIndividual(username, reciever, outgoing, wss);
+            sendToIndividual(username, reciever, newMessage, wss);
           }
       } 
       else 
