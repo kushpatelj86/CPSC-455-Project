@@ -16,6 +16,8 @@ ws.onmessage = async (msg) => {
     if (data.status === "success" && !data.islimited) {
       document.getElementById("authBox").style.display = "none";
       document.getElementById("chatBox").style.display = "block";
+      document.getElementById("logoutBox").style.display = "block";
+
       document.getElementById("currentUser").textContent = currentUsername;
       joinChat();
     }
@@ -109,6 +111,20 @@ function login() {
   ws.send(JSON.stringify({ type: "login", username, password, captchaCode }));
 }
 
+function logout() {
+  document.getElementById("username").value = '';
+  document.getElementById("password").value = '';
+  document.getElementById("captchaInput").value = '';
+  document.getElementById("authBox").style.display = "block";
+  document.getElementById("chatBox").style.display = "none";
+  document.getElementById("logoutBox").style.display = "none";
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.close();
+  }
+  window.location.reload();
+
+}
+
 function register() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
@@ -128,6 +144,13 @@ function register() {
 function joinChat() {
   ws.send(JSON.stringify({ type: "join", username: currentUsername }));
 }
+
+
+
+function disconnectChat() {
+  ws.send(JSON.stringify({ type: "join", username: currentUsername }));
+}
+
 
 function sendMessage() {
   const message = document.getElementById("msgInput").value;
