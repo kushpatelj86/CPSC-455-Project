@@ -72,3 +72,14 @@ There is a protection folder in which encryption, rate limiting, and login limit
 
 - **Logout:**  
    Use the logout button to disconnect from the chat.
+
+
+## Sources 
+
+https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#aes-gcm
+
+https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt#aes-gcm
+
+https://stackoverflow.com/questions/14603205/how-to-convert-hex-string-into-a-bytes-array-and-a-bytes-array-in-the-hex-strin
+
+https://www.geeksforgeeks.org/node-js-crypto-createcipheriv-method/
