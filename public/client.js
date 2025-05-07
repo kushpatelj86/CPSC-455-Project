@@ -198,6 +198,7 @@ async function importAesGcmKey(rawKey) {
 }
 
 
+/// used this website for decryption https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt#aes-gcm
 
 async function decrypt(encryptedObject) {
   const ivBytes = hexToBytes(encryptedObject.iv);
