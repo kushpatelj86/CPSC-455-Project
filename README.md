@@ -2,6 +2,8 @@
 
 Kush In Tech Chat is a chatting system built with Node.js and WebSockets. It supports user authentication authentication with strong password requirements, message encryption, rate limiting, and limited logging attempts. It uses a secure WebSocket connection (wss://) over HTTPS. This chat applications gives users option to send it to everyone or individuals 
 
+Link to chat https://kush-in-tech-chat.onrender.com/
+
 ## Features
 
 - **Real-Time Messaging:**  
