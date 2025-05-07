@@ -1,4 +1,4 @@
-const ws = new WebSocket('wss://0.0.0.0:8000'); //change ip whenever
+const ws = new WebSocket('wss://localhost:8000'); //change ip whenever
 let currentUsername = "";
 
 ws.onopen = () => console.log("WebSocket connected.");
@@ -124,6 +124,19 @@ function logout() {
   window.location.reload();
 
 }
+
+function addEmoji() {
+  const inputEle = document.getElementById('msgInput');
+  const emojiSelect = document.getElementById('emojis');
+
+  const selectedEmoji = emojiSelect.options[emojiSelect.selectedIndex].text;
+  inputEle.value += selectedEmoji;
+
+  emojiSelect.selectedIndex = -1;
+}
+
+
+
 
 function register() {
   const username = document.getElementById("username").value;

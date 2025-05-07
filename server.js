@@ -43,14 +43,14 @@ const server = https.createServer({
 // Initialize server
 const port =  8000;
 server.listen(port, () => {
-  console.log(`[${new Date().toISOString()}] HTTPS server running at https://0.0.0.0:${port}`);
+  console.log(`[${new Date().toISOString()}] HTTPS server running at https://localhost:${port}`);
 });
 
 // Create WebSocket server
 const wss = new WebSocketServer({ server });
 
 //Mongodb url
-const uri = 'mongodb://0.0.0.0:27017/USERS';
+const uri = 'mongodb://localhost:27017/USERS';
 // Connect to MongoDB
 
 
