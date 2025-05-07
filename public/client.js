@@ -1,4 +1,4 @@
-const ws = new WebSocket('wss://localhost:8000'); //change ip whenever
+const ws = new WebSocket('wss://kush-in-tech-chat.onrender.com'); //change ip whenever
 let currentUsername = "";
 
 ws.onopen = () => console.log("WebSocket connected.");

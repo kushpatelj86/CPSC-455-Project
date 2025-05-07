@@ -35,22 +35,22 @@ const CERT_PATH = path.join(__dirname, './certifications');
 
 
 // Create HTTPS server
-const server = https.createServer({
+/*const server = https.createServer({
   key: fs.readFileSync(path.join(CERT_PATH, 'key.pem')),
   cert: fs.readFileSync(path.join(CERT_PATH, 'certification.pem'))
-}, app);
+}, app);*/
 
 // Initialize server
-const port =  8000;
-server.listen(port, () => {
-  console.log(`[${new Date().toISOString()}] HTTPS server running at https://localhost:${port}`);
-});
+const port = process.env.PORT || 8000;
+const server = app.listen(port, () => {
+  console.log(`[${new Date().toISOString()}] Server running on https://kush-in-tech-chat.onrender.com`);
+})
 
 // Create WebSocket server
 const wss = new WebSocketServer({ server });
 
 //Mongodb url
-const uri = 'mongodb://localhost:27017/USERS';
+const uri = process.env.MONGODB_URI;
 // Connect to MongoDB
 
 
