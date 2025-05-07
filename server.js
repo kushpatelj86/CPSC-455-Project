@@ -43,7 +43,7 @@ const CERT_PATH = path.join(__dirname, './certifications');
 // Initialize server
 const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
-  console.log(`[${new Date().toISOString()}] Server running on https://kush-in-tech-chat.secure-tech.org`);
+  console.log(`[${new Date().toISOString()}] Server running on https://kush-in-tech-chat.onrender.com`);
 })
 
 // Create WebSocket server
