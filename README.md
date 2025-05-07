@@ -21,7 +21,7 @@ Link to chat https://kush-in-tech-chat.onrender.com/
 
 
 - **Message Encryption:**  
-  All messages are encrypted using the AES-GCM algorithm, which provides authentication, to generate the key you must run the command "openssl rand -hex 32 > aes-key.pem"
+  All messages are encrypted using the AES-GCM algorithm, which provides a authentication tag, to generate the key you must run the command "openssl rand -hex 32 > aes-key.pem"
 
 - **Rate Limiting:**  
   If a client sends more than 5 requests during the first minute he will be restricted from sending more messages 
