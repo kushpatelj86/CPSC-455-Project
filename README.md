@@ -1,6 +1,6 @@
 # Kush In Tech Chat
 
-Kush In Tech Chat is a chatting system built with Node.js and WebSockets. It supports user authentication authentication with strong password requirements, message encryption, rate limiting, and limited logging attempts. It uses a secure WebSocket connection (wss://) over HTTPS. This chat applications gives users option to send it to everyone or individuals 
+Kush In Tech Chat is a chatting system built with Node.js and WebSockets. It supports user authentication with strong password requirements, message encryption, rate limiting, and limited logging attempts. It uses a secure WebSocket connection (wss://) over HTTPS. This chat applications gives users option to send it to everyone or individuals
 
 Link to chat https://kush-in-tech-chat.onrender.com/
 
@@ -10,7 +10,7 @@ Link to chat https://kush-in-tech-chat.onrender.com/
   Send and receive messages instantly using WebSockets,
   
 - **User Authentication:**  
-  It uses mongo db to store the users 
+  It uses mongo db to store the users, it uses the my atlas mongodb account to store all the users
 
 - **Password Security**
   * Minimum 8 characters
@@ -24,9 +24,9 @@ Link to chat https://kush-in-tech-chat.onrender.com/
   All messages are encrypted using the AES-GCM algorithm, which provides a authentication tag, to generate the key you must run the command "openssl rand -hex 32 > aes-key.pem"
 
 - **Rate Limiting:**  
-  If a client sends more than 5 requests during the first minute he will be restricted from sending more messages 
+  If a client sends more than 5 requests during the first minute he will be restricted from sending more messages until their rate limit gets reset
 - **Login Limiting:**  
-  If a client attempts to log in with the wrong password more than 10 times they are locked out for 1 minute
+  If a client attempts to log in with the wrong password more than 5 times they are locked out for 1 minute
 
 - **Secure Certificates:**  
   I ran the web sockets on a https server and to generate the certificates required for running it on a https server you must 
