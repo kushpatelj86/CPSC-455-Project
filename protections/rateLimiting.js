@@ -12,7 +12,10 @@ export function rateLimit(client, actionType, wss) {
   let userData = rateLimitMap.get(key);
 
   if (!userData) {
-    userData = { count: 1, windowStart: now };
+    userData = { 
+      count: 1, 
+      windowStart: now 
+    };
     rateLimitMap.set(key, userData);
     return true;
   }
