@@ -15,7 +15,7 @@ export function limitLogin(client) {
   }
 
 
-  const LOCK_DURATION = 15 * 60 * 1000; // 15 minutes
+  const LOCK_DURATION = 60 * 1000; // 1 minute
   const MAX_ATTEMPTS = 5;
   const WINDOW = 60 * 1000; // 1 minute
 
