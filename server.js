@@ -117,12 +117,13 @@ function checkValidPassword(password) {
 
 
 // Send authentication response
-function sendAuthenticationResponse(client,type, status, message = "",islimited=false) {
+function sendAuthenticationResponse(client,type, status, message = "",islimited=false, isSecurePassword=false) {
   client.send(JSON.stringify({
     type: type,
     status,
     message,
-    islimited
+    islimited,
+    isSecurePassword
   }));
 }
 
@@ -200,22 +201,33 @@ wss.on('connection', (client, req) => {
       console.log("reciver:", parsedData.reciever);
       const { type, username, password, reciever, message, captchaCode } = parsedData;
       let isLoginLimited = false;
+      let isSecurePassword = false;
+
       if (parsedData.type === "login") {
         console.log("captchaCode ", captchaCode)
         if (!parsedData.username || !parsedData.password) {
-              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",isLoginLimited);
+              sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",isLoginLimited,isSecurePassword);
+              return;
+
         }
 
         // Apply login limit check before proceeding with authentication
         if (!limitLogin(client)) {
           isLoginLimited = true;
+          isSecurePassword = false;
+
           const LOCK_TIME = 10 * 6000;
           const timeRemaining = LOCK_TIME - (Date.now() - client.attemptData.lastViolationTime);
-          sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`,isLoginLimited);
+          sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`,isLoginLimited,isSecurePassword);
+          return;
+
         }
 
         if (!captchaCode) {
-          sendAuthenticationResponse(client,parsedData.type , "fail", "No captchaCode code provided.",isLoginLimited);
+          isSecurePassword = false;
+          sendAuthenticationResponse(client,parsedData.type , "fail", "No captchaCode code provided.",isLoginLimited,isSecurePassword);
+          return;
+
         }
 
         let user = null;
@@ -226,8 +238,10 @@ wss.on('connection', (client, req) => {
 
           if (!user) {
             console.log('User does not exist.');
-            sendAuthenticationResponse(client, parsedData.type ,"fail", "User does not exist.",isLoginLimited);
+            isSecurePassword = false;
 
+            sendAuthenticationResponse(client, parsedData.type ,"fail", "User does not exist.",isLoginLimited,isSecurePassword);
+            return;
           } 
           else {
             console.log('User:', user);
@@ -243,10 +257,16 @@ wss.on('connection', (client, req) => {
           const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
           if (isPasswordCorrect && !isLoginLimited) {
-            sendAuthenticationResponse(client, parsedData.type ,"success", "Login successful.",isLoginLimited);
+            isSecurePassword = true
+            sendAuthenticationResponse(client, parsedData.type ,"success", "Login successful.",isLoginLimited,isSecurePassword);
+            return;
+
           } 
           else {
-            sendAuthenticationResponse(client,parsedData.type , "fail", "Incorrect password.",isLoginLimited);
+            isSecurePassword = false
+            sendAuthenticationResponse(client,parsedData.type , "fail", "Incorrect password.",isLoginLimited,isSecurePassword);
+            return;
+
           }
         } catch (error) {
           console.error("Error during password comparison:", error);
@@ -256,31 +276,44 @@ wss.on('connection', (client, req) => {
       else if (parsedData.type === "registration") 
       {
         if (!username || !password) {
-             sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",isLoginLimited);
+            isSecurePassword = false;
+            sendAuthenticationResponse(client,parsedData.type , "fail", "Username and password required.",isLoginLimited,isSecurePassword);
+            return;
+
           }   
           // Checks for password strength
           const passwordValidation = checkValidPassword(password);
           if (!passwordValidation) 
           {
-            sendAuthenticationResponse(client,parsedData.type , "fail", "Password must be at least 8 characters long, with an uppercase letter, a lowercase letter, a number, and a special character.",isLoginLimited);
+            isSecurePassword = true;
+
+            sendAuthenticationResponse(client,parsedData.type , "fail", "Password must be at least 8 characters long, with an uppercase letter, a lowercase letter, a number, and a special character.",isLoginLimited,isSecurePassword);
+            return;
+
           }
         
           try {
             // Check if the username already exists in MongoDB
             const existingUser = await User.findOne({ username });
             if (existingUser) {
-              sendAuthenticationResponse(client,parsedData.type , "fail", "Username already exists.",isLoginLimited);
+              isSecurePassword = false;
+              sendAuthenticationResponse(client,parsedData.type , "fail", "Username already exists.",isLoginLimited,isSecurePassword);
+              return;
+
             }
         
             // Hash the password and create a new user
-            const hash = await bcrypt.hash(password, 10);
-            const newUser = new User({ username, password: hash });
-            await newUser.save();
-        
-            console.log(`Created new user account for ${username}`);
-        
-            // Send success response
-            sendAuthenticationResponse(client,parsedData.type , "success", "User registered successfully.",isLoginLimited);
+            if(passwordValidation)
+            {
+              const hash = await bcrypt.hash(password, 10);
+              const newUser = new User({ username, password: hash });
+              await newUser.save();
+              console.log(`Created new user account for ${username}`);
+              isSecurePassword = true;
+              sendAuthenticationResponse(client,parsedData.type , "success", "User registered successfully.",isLoginLimited,isSecurePassword);
+              return;
+
+            }        
             
           } catch (err) {
             console.error("Error during registration:", err);

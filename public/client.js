@@ -13,7 +13,8 @@ ws.onmessage = async (msg) => {
   if (data.type === "login" || data.type === "registration") {
     alert(data.message);
     alert(data.islimited);
-    if (data.status === "success" && !data.islimited) {
+    alert(data.isSecurePassword);
+    if (data.status === "success" && !data.islimited && data.isSecurePassword) {
       document.getElementById("authBox").style.display = "none";
       document.getElementById("chatBox").style.display = "block";
       document.getElementById("logoutBox").style.display = "block";
@@ -191,11 +192,12 @@ async function fetchKey() {
 
 
 //used this website for key https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#aes-gcm
-const SYMMETRIC_KEY = fetchKey();
+const SECRET_KEY = fetchKey();
 
 async function importAesGcmKey(rawKey) {
   return await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, true, ["decrypt"]);
 }
+
 
 
 /// used this website for decryption https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt#aes-gcm
@@ -205,7 +207,7 @@ async function decrypt(encryptedObject) {
   const ctBytes = hexToBytes(encryptedObject.ciphertext);
   const tagBytes = hexToBytes(encryptedObject.authTag);
   const combined = new Uint8Array([...ctBytes, ...tagBytes]);
-  const keyBytes = await SYMMETRIC_KEY;
+  const keyBytes = await SECRET_KEY;
   const key = await importAesGcmKey(keyBytes);
 
   try {
