@@ -285,7 +285,7 @@ wss.on('connection', (client, req) => {
           const passwordValidation = checkValidPassword(password);
           if (!passwordValidation) 
           {
-            isSecurePassword = true;
+            isSecurePassword = false;
 
             sendAuthenticationResponse(client,parsedData.type , "fail", "Password must be at least 8 characters long, with an uppercase letter, a lowercase letter, a number, and a special character.",isLoginLimited,isSecurePassword);
             return;
