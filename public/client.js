@@ -71,6 +71,8 @@ ws.onmessage = async (msg) => {
 };
 
 
+//used this website to generate the captcha https://www.w3schools.com/Jsref/canvas_clearrect.asp
+//https://www.w3schools.com/tags/canvas_filltext.asp
 let generatedCaptcha = "";
 
 function generateCaptcha() {

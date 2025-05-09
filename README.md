@@ -83,3 +83,9 @@ https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt#aes-gcm
 https://stackoverflow.com/questions/14603205/how-to-convert-hex-string-into-a-bytes-array-and-a-bytes-array-in-the-hex-strin
 
 https://www.geeksforgeeks.org/node-js-crypto-createcipheriv-method/
+
+
+https://www.w3schools.com/Jsref/canvas_clearrect.asp
+
+https://www.w3schools.com/tags/canvas_filltext.asp
+
