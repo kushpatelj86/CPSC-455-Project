@@ -129,8 +129,6 @@ function logout() {
 }
 
 function addEmoji() {
-  emojiSelect.selectedIndex = 0;
-
   const inputEle = document.getElementById('msgInput');
   const emojiSelect = document.getElementById('emojis');
 
