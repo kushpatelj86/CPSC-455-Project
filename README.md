@@ -31,7 +31,9 @@ Link to chat https://kush-in-tech-chat.onrender.com/
 - **Secure Certificates:**  
   I ran the web sockets on a https server and to generate the certificates required for running it on a https server you must 
 
-
+- **Live on the world wide web:**  
+Hosted on render platform
+Uses UptimeRobot to ping to this website every 5 minutes to keep it running forever
 
 
 ## Installation
