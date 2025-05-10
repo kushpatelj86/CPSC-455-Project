@@ -194,7 +194,7 @@ async function fetchKey() {
 
 
 //used this website for key https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#aes-gcm
-const SECRET_KEY = fetchKey();
+const SYMMETRIC_KEY = fetchKey();
 
 async function importAesGcmKey(rawKey) {
   return await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, true, ["decrypt"]);
@@ -209,7 +209,7 @@ async function decrypt(encryptedObject) {
   const ctBytes = hexToBytes(encryptedObject.ciphertext);
   const tagBytes = hexToBytes(encryptedObject.authTag);
   const combined = new Uint8Array([...ctBytes, ...tagBytes]);
-  const keyBytes = await SECRET_KEY;
+  const keyBytes = await SYMMETRIC_KEY;
   const key = await importAesGcmKey(keyBytes);
 
   try {
