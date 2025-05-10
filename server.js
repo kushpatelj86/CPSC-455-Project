@@ -217,7 +217,7 @@ wss.on('connection', (client, req) => {
           isSecurePassword = false;
 
           const LOCK_TIME = 10 * 6000;
-          const timeRemaining = LOCK_TIME - (Date.now() - client.attemptData.lastViolationTime);
+          const timeRemaining = Date.now() - (LOCK_TIME);
           sendAuthenticationResponse(client,parsedData.type , "fail", `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.`,isLoginLimited,isSecurePassword);
           return;
 

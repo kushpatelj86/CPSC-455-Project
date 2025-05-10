@@ -15,14 +15,14 @@ export function limitLogin(client) {
   }
 
 
-  const LOCK_DURATION = 15 * 60 * 1000;
+  const LOCK_DURATION = 60 * 1000; // 1 minute
   const MAX_ATTEMPTS = 5;
   const WINDOW = 60 * 1000; // 1 minute
 
-  if (attemptData.lastViolationTime && now - attemptData.lastViolationTime < LOCK_DURATION) {
+  /*if (attemptData.lastViolationTime && now - attemptData.lastViolationTime < LOCK_DURATION) {
     client.attemptData = attemptData;
     return false;
-  }
+  }*/
 
   if (now - attemptData.lastAttempt > WINDOW) {
     attemptData.attempts = 1;
