@@ -41,7 +41,7 @@ export function limitLogin(client,actionType,wss) {
     client.send(JSON.stringify({
       type: actionType,
       status: "fail",
-      message: "You are sending messages too quickly. Please wait a minute."
+      message: "You are logging in to quickly. Please wait a minute."
     }));
     return false;
   }
