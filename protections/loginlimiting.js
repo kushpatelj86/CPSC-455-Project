@@ -2,9 +2,9 @@ export const loginAttempts = new Map();
 
 
 //Checks the number of times a user logs in
-export function limitLogin(client) {
+export function limitLogin(client,actionType,wss) {
   const now = Date.now();
-  const key = client._socket.remoteAddress;
+  const key = client._socket.remoteAddress || client.username;
   let attemptData = loginAttempts.get(key);
   if (attemptData == null) { 
     attemptData = {
@@ -36,6 +36,13 @@ export function limitLogin(client) {
   if (attemptData.attempts > MAX_ATTEMPTS) {
     attemptData.lastViolationTime = now;
     client.attemptData = attemptData;
+
+
+    client.send(JSON.stringify({
+      type: actionType,
+      status: "fail",
+      message: "You are sending messages too quickly. Please wait a minute."
+    }));
     return false;
   }
 

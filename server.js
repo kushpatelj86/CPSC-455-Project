@@ -212,7 +212,7 @@ wss.on('connection', (client, req) => {
         }
 
         // Apply login limit check before proceeding with authentication
-        if (!limitLogin(client)) {
+        if (!limitLogin(client,'login', wss)) {
           isLoginLimited = true;
           isSecurePassword = false;
 
