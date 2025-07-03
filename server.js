@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { rateLimitMap, resetRateLimit,rateLimit } from './protections/rateLimiting.js';  // Import from the external file
 import { resetLoginLimit ,limitLogin, loginAttempts} from './protections/loginlimiting.js';
 import { encrypt } from './protections/encryption.js';
+import { santize } from './protections/sanitization.js';
 
 //stored encryption,ratelimiting and login limiting in a seprate folder
 import bcrypt from 'bcrypt';
@@ -157,7 +158,8 @@ function getUserList() {
 }
 
 function sendEncryptedNotification(wss, messageText, username = null) {
-  const encryptedMessage = encrypt(messageText);
+  const santizedMessage = santize(messageText);
+  const encryptedMessage = encrypt(santizedMessage);
   const payload = {
     type: "notification",
     message: encryptedMessage
@@ -337,8 +339,9 @@ wss.on('connection', (client, req) => {
           console.log(`${username} has been rate limited`)
           return;
         }
-        
-          const encryptedMessage = encrypt(message);
+
+          const santizedMessage = santize(message)
+          const encryptedMessage = encrypt(santizedMessage);
           console.log("enceypted message ", encryptedMessage)
           const newMessage = JSON.stringify({
             type: "message",
