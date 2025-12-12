@@ -1,0 +1,45 @@
+#login-form{
+    background-color: aquamarine;
+    padding: 20px;
+    margin: 20px auto; /* Centering forms */
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 90%; /* Responsive width */
+    max-width: 500px; /* Maximum width */
+
+}
+
+#login-form label{
+    font-family: 'Arial', sans-serif; /* Clean, sans-serif font */
+    background-color: aliceblue;
+    color: black;
+    border-radius: 8px;
+
+}
+
+#login-form input{
+    background-color: aliceblue;
+    border-radius: 8px;
+    color: black;
+
+}
+
+#login-form button{
+    font-family: 'Arial', sans-serif; /* Clean, sans-serif font */
+    background-color: aliceblue;
+    border-radius: 8px;
+    color: black;
+
+}
+
+#login-form button:hover{
+    background-color: rgb(239, 241, 93);
+
+}
+
+
+#registration-link{
+    margin: 20px auto; /* Centering forms */
+    color: black;
+
+}
