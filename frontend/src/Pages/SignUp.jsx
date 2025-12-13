@@ -29,7 +29,15 @@ export function SignUp() {
           setIsRegistered(true); // triggers redirect to home
         } 
         else {
-          alert(data.message || 'Registration failed.');
+          if(data.message)
+          {
+            alert(data.message)
+          }
+          else
+          {
+            alert("Registration failed")
+
+          }
         }
       }
     };

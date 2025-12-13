@@ -40,7 +40,17 @@ export function Login() {
           setIsLoggedIn(true);
         } 
         else {
-          alert(data.message || 'Authentication failed.');
+
+          if(data.message)
+          {
+            alert(data.message)
+          }
+          else
+          {
+            alert("Authentication failed")
+
+          }
+
         }
       }
     };

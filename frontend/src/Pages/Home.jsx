@@ -10,7 +10,11 @@ export function Home() {
     console.log("Logging out...");
     setIsLoggedIn(false);
     localStorage.setItem('currentUser', "");
-    navigate("/", { replace: true });
+    if(isLoggedIn == false)
+    {
+        navigate("/", { replace: true });
+
+    }
   }
 
   return (

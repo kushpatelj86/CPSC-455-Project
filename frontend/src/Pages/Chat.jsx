@@ -51,7 +51,11 @@ async function decrypt(encryptedObject) {
 
 export function Chat() {
   const storedUser = localStorage.getItem("currentUser");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  let currentUser = null;
+
+  if (storedUser) {
+    currentUser = JSON.parse(storedUser);
+  }
 
   const ws = useRef(null);
   const [messages, setMessages] = useState([]);
@@ -62,12 +66,6 @@ export function Chat() {
 
   const msgBoxRef = useRef();
 
-
-
-
-  function onLogout(){
-    return <Navigate to="/login" replace />;
-  }
 
   // Auto-scroll
   useEffect(() => {
