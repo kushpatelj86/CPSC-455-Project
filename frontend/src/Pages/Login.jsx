@@ -94,8 +94,12 @@ export function Login() {
   };
 
   // Redirects
-  if (hasAccount === false) return <Navigate to="/sign-up" replace />;
-  if (isLoggedIn) return <Navigate to="/home" replace />;
+  if (hasAccount === false) {
+    return <Navigate to="/sign-up" replace />;
+  }
+  if (isLoggedIn) {
+    return <Navigate to="/home" replace />;
+  }
 
   return (
     <div>

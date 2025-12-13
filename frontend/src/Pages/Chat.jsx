@@ -49,7 +49,7 @@ async function decrypt(encryptedObject) {
   }
 }
 
-export function Chat({ onLogout }) {
+export function Chat() {
   const storedUser = localStorage.getItem("currentUser");
   const currentUser = storedUser ? JSON.parse(storedUser) : null;
 
@@ -61,6 +61,13 @@ export function Chat({ onLogout }) {
   const [selectedEmoji, setSelectedEmoji] = useState("");
 
   const msgBoxRef = useRef();
+
+
+
+
+  function onLogout(){
+    return <Navigate to="/login" replace />;
+  }
 
   // Auto-scroll
   useEffect(() => {
@@ -210,13 +217,6 @@ export function Chat({ onLogout }) {
             );
           })}
         </div>
-
-        <button
-          onClick={onLogout}
-          style={{ marginTop: "10px", color: "white" }}
-        >
-          Logout
-        </button>
       </div>
     </div>
   );

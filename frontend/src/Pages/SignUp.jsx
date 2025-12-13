@@ -76,8 +76,12 @@ export function SignUp() {
   };
 
   // --- Redirect logic ---
-  if (hasAccount) return <Navigate to="/login" replace />;
-  if (isRegistered) return <Navigate to="/home" replace />;
+  if (hasAccount) {
+    return <Navigate to="/login" replace />;
+  }
+  if (isRegistered) {
+    return <Navigate to="/home" replace />;
+  }
 
   return (
     <div>
