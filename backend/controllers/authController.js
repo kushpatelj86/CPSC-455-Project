@@ -2,7 +2,7 @@ import User from '../model/User.js';
 import bcrypt from 'bcrypt';
 import { santize } from '../protections/sanitization.js';
 import { limitLogin, resetLoginLimit } from '../protections/loginlimiting.js';
-
+import {logAuthentication, logLoginLimit} from '../logs/logger.js';
 
 
 // Send authentication response
@@ -31,6 +31,7 @@ export async function handleLogin(client, username, password, type, captchaCode)
     }
     if (!limitLogin(client)) {
         const timeRemaining = 60000 - (Date.now() - client.attemptData.lastViolationTime);
+        logLoginLimit(username, 'login attempt');
         return sendAuthResponse(client, type, 'fail', `Account locked. Try again in ${Math.ceil(timeRemaining / 1000)}s`, true);
     }
 
@@ -40,6 +41,7 @@ export async function handleLogin(client, username, password, type, captchaCode)
   try {
     const user = await User.findOne({ username });
     if (!user) {
+        logAuthentication(username, 'failed login - user not found');
         return sendAuthResponse(client, type, 'fail', 'User does not exist');
     }
     const validPassword = await bcrypt.compare(password, user.password);
@@ -47,6 +49,7 @@ export async function handleLogin(client, username, password, type, captchaCode)
         return sendAuthResponse(client, type, 'fail', 'Incorrect password');
     }
     resetLoginLimit(client);
+    logAuthentication(username, 'login successful');
     sendAuthResponse(client, type, 'success', 'Login successful', false, true);
   } catch (err) {
     console.error(err);
@@ -70,7 +73,7 @@ export async function handleRegistration(client, username, password, type) {
     const hash = await bcrypt.hash(password, 10);
     const newUser = new User({ username, password: hash });
     await newUser.save();
-
+    logAuthentication(username, 'registration successful');
     sendAuthResponse(client, type, 'success', 'User registered successfully', false, true);
   } catch (err) {
     console.error(err);

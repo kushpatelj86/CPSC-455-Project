@@ -88,7 +88,9 @@ wss.on('connection', (client) => {
 
   client.on('close', () => {
     console.log("Client disconnected");
-    if (!client.username) return;
+    if (!client.username) {
+      return;
+    }
 
     removeUser(client.username);
     console.log(`${client.username} disconnected.`);

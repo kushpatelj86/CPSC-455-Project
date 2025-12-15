@@ -1,7 +1,7 @@
 import { encrypt } from '../protections/encryption.js';
 import { santize } from '../protections/sanitization.js';
 import { rateLimit } from '../protections/rateLimiting.js';
-
+import { logMessage, logNotification, logRateLimit, logUserJoin, logUserLeave } from '../logs/logger.js';
 let userList = [];
 
 //adds user to global list
@@ -30,6 +30,8 @@ export function sendEncryptedNotification(wss, messageText, username = null) {
   if (username) {
     payload.username = username;
     payload.userList = getUserList();
+    logNotification(username, messageText); // Log notification
+
   }
   broadcast(JSON.stringify(payload), wss);
 }
@@ -57,6 +59,7 @@ export function handleMessage(client, wss, parsedData) {
    if (!rateLimit(client, 'message', wss)) 
    {
         console.log(`${username} has been rate limited`)
+        logRateLimit(username, 'message'); // Log rate-limited event
         return;
    }
   
@@ -69,7 +72,7 @@ export function handleMessage(client, wss, parsedData) {
         reciever,
         message: encryptedMessage
     });
-          
+    logMessage(username, message, reciever); // Log message      
     if (reciever === "All") 
     {
         broadcast(newMessage, wss);
@@ -89,6 +92,7 @@ export function handleJoin(client, wss, parsedData) {
 
     console.log(`${username} joined the chat.`);
     console.log("User list:", userList);
+    logUserJoin(username); // Log join
 
     sendEncryptedNotification(wss, `${username} joined the chat.`, username);
 
