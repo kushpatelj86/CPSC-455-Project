@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path';
 
 export function logMessage( sender, message, receiver = 'All'){
     const LOG_FILE = path.join(process.cwd(), 'log.txt'); 
